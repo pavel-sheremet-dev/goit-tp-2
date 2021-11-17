@@ -1,0 +1,33 @@
+body {
+  font-family: $main-font;
+  color: $main-text-color;
+}
+
+// 0-479 responsive mobile container
+.container {
+  width: 100%;
+  padding: 0 20px;
+  outline: 1px solid yellow;
+}
+
+// 480-767 adaptive mobile container
+@media screen and (min-width: 480px) {
+  .container {
+    width: 480px;
+    margin: 0 auto;
+  }
+}
+
+// 768-1199 adaptive tablet container
+@media screen and (min-width: 768px) {
+  .container {
+    width: 660px;
+  }
+}
+
+// 1200+ adaptive desktop container
+@media screen and (min-width: 1024px) {
+  .container {
+    width: 920px;
+  }
+}
