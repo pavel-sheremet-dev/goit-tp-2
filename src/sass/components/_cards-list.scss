@@ -1,0 +1,81 @@
+.cards__list {
+  display: block;
+}
+
+.cards__item {
+  width: 100%;
+  outline: 1px solid green;
+}
+
+.cards__img {
+  width: 100%;
+}
+
+@media screen and (min-width: 480px) {
+  .cards__item {
+    width: 440px;
+  }
+}
+
+// 768-1199 adaptive tablet container
+@media screen and (min-width: 768px) {
+  .cards__list {
+    display: grid;
+    gap: 30px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cards__item {
+    width: 295px;
+  }
+}
+
+// 1200+ adaptive desktop container
+@media screen and (min-width: 1024px) {
+  .cards__list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .cards__item {
+    width: 273px;
+  }
+}
+
+// Потом добавим ожидание загрузки, используя спиннер
+
+// для использования этого спиннера нужно в шаблон добавить следующую разметку
+// <div class='cards__loader'></div>
+// первым ребенком
+// а на родителя повесить position: relative;
+// через js добавляется/удаляется класс active на этот елемент.
+
+// .cards__loader {
+//   z-index: -1;
+//   position: absolute;
+//   top: 50%;
+//   left: 50%;
+//   transform: translate(-50%, -50%);
+//   transform-origin: top left;
+//   width: 80px;
+//   height: 80px;
+//   border-radius: 50%;
+//   border: 2px solid transparent;
+//   border-top-color: $secondary-text-color;
+//   opacity: 0;
+//   transition: opacity 250ms linear;
+// }
+
+// .card__loader.active {
+//   z-index: 1;
+//   animation: card-loader 1s ease infinite;
+//   opacity: 1;
+// }
+
+// @keyframes card-loader {
+//   from {
+//     transform: rotate(0turn) translate(-50%, -50%);
+//   }
+//   to {
+//     transform: rotate(1turn) translate(-50%, -50%);
+//   }
+// }

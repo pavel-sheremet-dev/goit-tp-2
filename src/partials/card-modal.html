@@ -1,0 +1,25 @@
+<div class="modal card js-card-modal">
+  <div class="modal__overlay"></div>
+
+  <div class="container card__content">
+    <!-- содержимое карточки с полным описанием -->
+
+    <!-- ниже список из кнопкок -->
+    <ul class="card__btn-list list">
+      <li class="card__btn-item">
+        <button type="button" class="card__btn accent" data-action="add-to-watched">
+          add to Watched
+        </button>
+      </li>
+      <li class="card__btn-item">
+        <button type="button" class="card__btn" data-action="add-to-queue">add to queue</button>
+      </li>
+    </ul>
+  </div>
+
+  <button type="button" class="card-modal__button" data-action="close-card-modal">
+    <svg class="modal__close-btn">
+      <use href="./images/sprite.svg#icon-close"></use>
+    </svg>
+  </button>
+</div>

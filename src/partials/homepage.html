@@ -1,0 +1,22 @@
+<section class="homepage">
+  <div class="container homepage__container">
+    <h1 class="homepage__title">Популярные фильмы</h1>
+    <form class="search-form" id="search-form">
+      <label class="input-container">
+        <input
+          class="search-form__input"
+          type="text"
+          name="query"
+          autocomplete="off"
+          placeholder="Поиск фильмов..."
+        />
+      </label>
+      <button class="search-form__btn" type="submit" data-btn="search">
+        <svg class="search-form">
+          <use href="./images/sprite.svg#icon-search"></use>
+        </svg>
+      </button>
+    </form>
+    <p class="homepage__notification js-notification">Результатов нет, введите другой запрос</p>
+  </div>
+</section>

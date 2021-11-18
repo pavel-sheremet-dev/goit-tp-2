@@ -2,8 +2,10 @@
 
 export default {
   IS_HIDDEN: 'is-hidden',
+  VIS_HIDDEN: 'visually-hidden',
   ACTIVE: 'active',
+  ACCENT: 'accent',
   LOCK: 'is-lock',
-  // NOT_FOUND: 'not-found',
-  // IMG: 'card__img',
+  NOT_FOUND: 'not-found',
+  DELAY: 250,
 };

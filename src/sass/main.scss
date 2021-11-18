@@ -1,5 +1,13 @@
-@import './utils/spinner';
 @import './utils/vars';
-@import './components/backdrop-loader';
+@import './utils/spinner';
+@import './utils/visually-hidden';
 @import './base/section';
 @import './base/common';
+@import './components/backdrop-loader';
+@import './components/header';
+@import './components/homepage';
+@import './components/my-library';
+@import './components/cards-list';
+@import './components/footer';
+@import './components/card-modal';
+@import './components/devs-modal';

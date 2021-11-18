@@ -29,6 +29,7 @@
   "dependencies": {
     "lodash.debounce": "^4.0.8",
     "material-icons": "^1.10.2",
-    "spin.js": "^4.1.1"
+    "spin.js": "^4.1.1",
+    "tui-pagination": "^3.4.1"
   }
 }
