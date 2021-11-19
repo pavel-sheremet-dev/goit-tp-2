@@ -7,12 +7,10 @@ export default class Application {
   #CATEGORIES = {
     topRated: 'movie/top_rated',
   };
-  constructor({ makeMoviesCards, makeMovieDetails, refs, CSS }) {
+  constructor({ makeMoviesCards, makeMovieDetails }) {
     this.makeMoviesCards = makeMoviesCards;
     this.makeMovieDetails = makeMovieDetails;
     this.page = 1;
-    this.refs = refs;
-    this.CSS = CSS;
   }
 
   // Методы лучше записывать как стрелочные функции, в таком случае не теряется контекст, если метод передается как коллбек-функция
