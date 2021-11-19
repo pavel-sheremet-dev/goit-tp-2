@@ -10,6 +10,7 @@ import CSS from './js/data/css';
 
 const refs = getRefs();
 
+
 const options = {
   makeMoviesCards,
   makeMovieDetails,

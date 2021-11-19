@@ -7,6 +7,7 @@ export default class Application {
   #CATEGORIES = {
     topRated: 'movie/top_rated',
   };
+
   constructor({ makeMoviesCards, makeMovieDetails, makeHeaderForm, makeLibraryBtns, refs, CSS }) {
     this.makeMoviesCards = makeMoviesCards;
     this.makeMovieDetails = makeMovieDetails;
