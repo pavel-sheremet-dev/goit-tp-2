@@ -7,15 +7,21 @@ export default class Application {
   #CATEGORIES = {
     topRated: 'movie/top_rated',
   };
-  constructor({ makeMoviesCards, makeMovieDetails }) {
+
+  constructor({ makeMoviesCards, makeMovieDetails, makeHeaderForm, makeLibraryBtns, refs, CSS }) {
     this.makeMoviesCards = makeMoviesCards;
     this.makeMovieDetails = makeMovieDetails;
+    this.makeHeaderForm = makeHeaderForm;
+    this.makeLibraryBtns = makeLibraryBtns;
     this.page = 1;
+    this.refs = refs;
+    this.CSS = CSS;
   }
 
   // Методы лучше записывать как стрелочные функции, в таком случае не теряется контекст, если метод передается как коллбек-функция
 
   loadListeners = () => {
+    this.refs.navigation.addEventListener('click', this.onNavigationListClick);
     // Сюда добавляем слушатели событий, которые должны подключиться при первой загрузке страницы (например клики на кнопки HOME и My Library)
   };
 
@@ -84,6 +90,31 @@ export default class Application {
   };
 
   // Ниже можно добавлять методы, которые касаются работы с DOM
+
+  onNavigationListClick = e => {
+    if (e.target.tagName !== 'BUTTON' || e.target.classList.contains(this.CSS.ACCENT)) {
+      return;
+    }
+    if (e.target.classList.contains('js-home-btn')) {
+      this.refs.homeBtn.classList.add(this.CSS.ACCENT);
+      this.refs.myLibraryBtn.classList.remove(this.CSS.ACCENT);
+      this.refs.header.classList.add('home');
+      this.refs.header.classList.remove('library');
+      const headerFormMarkup = this.makeHeaderForm();
+      this.refs.headerBottomContainer.innerHTML = headerFormMarkup;
+      return;
+    }
+
+    if (e.target.classList.contains('js-mylibrary-btn')) {
+      this.refs.myLibraryBtn.classList.add(this.CSS.ACCENT);
+      this.refs.homeBtn.classList.remove(this.CSS.ACCENT);
+      this.refs.header.classList.add('library');
+      this.refs.header.classList.remove('home');
+      const libraryBtnMarkup = this.makeLibraryBtns();
+      this.refs.headerBottomContainer.innerHTML = libraryBtnMarkup;
+      return;
+    }
+  };
 
   // Ниже можно добавлять методы, которые касаются обработки событий
 }
