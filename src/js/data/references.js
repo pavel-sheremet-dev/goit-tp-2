@@ -10,8 +10,6 @@ export default () => {
     headerBottomContainer: document.querySelector('.js-header__bottom'),
     form: document.querySelector('#search-form'),
     input: document.querySelector('[name="query"]'),
-    watchedBtn: document.querySelector('.js-watched-btn'),
-    queueBtn: document.querySelector('.js-queue-btn'),
     cardsContainer: document.querySelector('.js-cards__list'),
     loadMoreBtn: document.querySelector('.js-loadmore-btn'),
     loadMoreAnchor: document.querySelector('.js-loadmore-anchor'),
@@ -21,6 +19,7 @@ export default () => {
     devsLink: document.querySelector('.js-devs-link'),
     devsModal: document.querySelector('.js-devs-modal'),
     // selectors example
-    // imageSelector: '.card__img',
+    watchedBtnSelector: '.js-watched-btn',
+    queueBtnSelector: '.js-queue-btn',
   };
 };
