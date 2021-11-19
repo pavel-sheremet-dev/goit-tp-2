@@ -3,8 +3,11 @@
 export default () => {
   return {
     logo: document.querySelector('.js-logo'),
+    navigation: document.querySelector('.js-navigation'),
     homeBtn: document.querySelector('.js-home-btn'),
     myLibraryBtn: document.querySelector('.js-mylibrary-btn'),
+    header: document.querySelector('.js-header'),
+    headerBottomContainer: document.querySelector('.js-header__bottom'),
     form: document.querySelector('#search-form'),
     input: document.querySelector('[name="query"]'),
     watchedBtn: document.querySelector('.js-watched-btn'),

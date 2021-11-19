@@ -1,22 +1,50 @@
-<div class="container header__container">
-  <a class="logo link header__logo js-logo" href="./index.html">
-    <svg>
-      <use href="./images/sprite.svg#icon-logo"></use>
-    </svg>
-    <span class="logo__name">Filmoteka</span>
-  </a>
-  <nav class="navigation">
-    <ul class="nav-menu list">
-      <li class="nav-menu__item">
-        <button type="button" class="nav-menu__btn accent js-home-btn" href="./index.html">
-          home
-        </button>
-      </li>
-      <li class="nav-menu__item">
-        <button type="button" class="nav-menu__btn js-mylibrary-btn" href="./portfolio.html">
-          my library
-        </button>
-      </li>
-    </ul>
-  </nav>
-</div>
+<header class="header home js-header">
+  <div class="container header__container">
+    <div class="header__top">
+      <a class="logo link header__logo js-logo" href="./index.html">
+        <svg class="logo__icon">
+          <use href="./images/sprite.svg#icon-logo"></use>
+        </svg>
+        <span class="logo__name">Filmoteka</span>
+      </a>
+      <nav class="navigation js-navigation">
+        <ul class="nav-menu list">
+          <li class="nav-menu__item">
+            <button type="button" class="nav-menu__btn accent js-home-btn" href="./index.html">
+              home
+            </button>
+          </li>
+          <li class="nav-menu__item">
+            <button type="button" class="nav-menu__btn js-mylibrary-btn" href="./portfolio.html">
+              my library
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="header__bottom js-header__bottom">
+      <div class="header__form-container js-form-container">
+        <form class="search-form" id="search-form">
+          <label class="input-container">
+            <input
+              class="search-form__input"
+              type="text"
+              name="query"
+              autocomplete="off"
+              placeholder="Поиск фильмов..."
+            />
+          </label>
+          <button class="search-form__btn" type="submit" data-btn="search">
+            <svg class="search-form__icon">
+              <use href="./images/sprite.svg#icon-search"></use>
+            </svg>
+          </button>
+        </form>
+        <p class="homepage__notification js-notification is-hidden">
+          Результатов нет, введите другой запрос
+        </p>
+      </div>
+    </div>
+  </div>
+</header>
