@@ -129,16 +129,22 @@
 .header__bottom {
   position: relative;
   overflow: hidden;
-}
-
-.header__form-container {
-  opacity: 0;
+  opacity: 1;
   transition: opacity 250ms linear;
 }
 
-.header.home .header__form-container {
-  opacity: 1;
+.header__bottom.is-hidden {
+  opacity: 0;
 }
+
+.header__form-container {
+  opacity: 1;
+  transition: opacity 250ms linear;
+}
+
+// .header.home .header__form-container {
+//   opacity: 1;
+// }
 
 .search-form__input {
   width: 100%;
@@ -208,13 +214,13 @@
   flex-wrap: wrap;
   padding-top: 5px;
 
-  opacity: 0;
+  opacity: 1;
   transition: opacity 250ms linear;
 }
 
-.header.library .my-library__list {
-  opacity: 1;
-}
+// .header.library .my-library__list {
+//   opacity: 1;
+// }
 
 .my-library__item:not(:last-child) {
   margin-right: 10px;
