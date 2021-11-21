@@ -11,6 +11,37 @@
   width: 100%;
 }
 
+.page-load-status {
+  margin: auto;
+  margin-top: 25px;
+  border: 16px solid #ddd;
+  border-radius: 50%;
+  border-top: 16px solid #ff6b08;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 1.5s linear infinite; /* Safari */
+  animation: spin 1.5s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 @media screen and (min-width: 480px) {
   .cards__item {
     width: 440px;

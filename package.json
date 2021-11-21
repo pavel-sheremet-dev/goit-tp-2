@@ -27,6 +27,9 @@
     "sass": "^1.32.8"
   },
   "dependencies": {
+    "ev-emitter": "^2.1.0",
+    "fizzy-ui-utils": "^3.0.0",
+    "jquery": "^3.6.0",
     "lodash.debounce": "^4.0.8",
     "material-icons": "^1.10.2",
     "spin.js": "^4.1.1",
