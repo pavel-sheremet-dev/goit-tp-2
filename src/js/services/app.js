@@ -32,6 +32,7 @@ export default class Application {
   loadListeners = () => {
     this.refs.navigation.addEventListener('click', this.onNavigationListClick);
     this.refs.form.addEventListener('submit', this.onSearchFormSubmit);
+    this.refs.myLibraryBtn.addEventListener('click', this.renderMyLibrary);
     // Сюда добавляем слушатели событий, которые должны подключиться при первой загрузке страницы (например клики на кнопки HOME и My Library)
   };
 
@@ -167,6 +168,39 @@ export default class Application {
       .catch(console.log);
   };
 
+  renderMyLibrary = () => {
+    this.refs.cardsContainer.innerHTML = '';
+    this.refs.cardsTitle.classList.add(this.CSS.VIS_HIDDEN);
+    this.renderMyLibraryMovies('Queue');
+  };
+
+  renderMyLibraryMovies = key => {
+    this.refs.cardsContainer.innerHTML = '';
+    const localStorageInfo = this.loadInfoFromLocalStorage(key);
+
+    if (localStorageInfo == null || localStorageInfo.length == 0) {
+      this.refs.cardsContainer.insertAdjacentHTML(
+        'beforeend',
+        `<p class="my-library__description">В даному розділі фільми відсутні!</p>`,
+      );
+      return;
+    } else {
+      this.refs.cardsContainer.insertAdjacentHTML(
+        'beforeend',
+        this.makeMoviesCards(localStorageInfo),
+      );
+    }
+  };
+
+  loadInfoFromLocalStorage = key => {
+    try {
+      return JSON.parse(localStorage.getItem(key));
+    } catch (e) {
+      console.log(e);
+      return [];
+    }
+  };
+
   // Паша Ш. Функция для поиска елемента, по желанию можно юзать, когда это надо.
 
   getElement = selector => {
@@ -227,6 +261,17 @@ export default class Application {
   };
 
   onLibraryBtnsClick = e => {
-    console.log(e.target);
+    if (e.target.classList.contains('js-queue-btn')) {
+      this.accentEl(e.target);
+      this.clearAccent(document.querySelector('.js-watched-btn'));
+      // this.clearAccent(this.refs.watchedBtnSelector);
+      this.renderMyLibraryMovies('Queue');
+    }
+    if (e.target.classList.contains('js-watched-btn')) {
+      this.accentEl(e.target);
+      // this.clearAccent(this.refs.queueBtnSelector);
+      this.clearAccent(document.querySelector('.js-queue-btn'));
+      this.renderMyLibraryMovies('Watched');
+    }
   };
 }
