@@ -28,9 +28,14 @@ export default class Application {
     this.makeHeaderForm = makeHeaderForm;
     this.makeLibraryBtns = makeLibraryBtns;
     this.page = 1;
+    this.total_pages = null;
     this.refs = refs;
     this.CSS = CSS;
     this.spriteUrl = { url: spriteUrl };
+    this.id = null;
+    this.lang = 'en-US';
+    this._path = 'movie/top_rated';
+    this._urlParams = '';
     this.genres = [];
     this._not_found_img = brokenImgUrl;
   }
@@ -46,7 +51,7 @@ export default class Application {
   loadListeners = () => {
     this.refs.navigation.addEventListener('click', this.onNavigationListClick);
     this.refs.form.addEventListener('submit', this.onSearchFormSubmit);
-    this.refs.myLibraryBtn.addEventListener('click', this.renderMyLibrary);
+    // this.refs.myLibraryBtn.addEventListener('click', this.renderMyLibrary);
     // Сюда добавляем слушатели событий, которые должны подключиться при первой загрузке страницы (например клики на кнопки HOME и My Library)
   };
 
@@ -54,20 +59,58 @@ export default class Application {
     // Сюда добавляем все действия, которые должны произойти при загрузке стартовой страницы, например слушатели событий, отрисовка популярных фильмов.
     this.loadListeners();
     this.getGenres();
+    this.onLoadPage();
   };
 
   // Ниже можно добавлять методы, которые касаются работы с API
 
   // Пример стандартной фукнции (метода)
 
-  fecthTopRatedFilms = () => {
-    const urlParams = new URLSearchParams({
+  // fecthTopRatedFilms = () => {
+  //   const urlParams = new URLSearchParams({
+  //     api_key: this.#API_KEY,
+  //     language: 'en-US',
+  //     page: this.page,
+  //   });
+
+  //   return fetch(`${this.#BASE_API_URL}/${this.#CATEGORIES.topRated}?${urlParams}`)
+  //     .then(res => {
+  //       if (res.ok) {
+  //         // console.log('OK', res);
+  //         return res.json();
+  //       }
+  //       // console.log('No OK', res, res.status, res.statusText);
+  //       return Promise.reject({
+  //         title: res.status,
+  //         message: res.statusText,
+  //       });
+  //     })
+  //     .catch(err => {
+  //       console.log('No OK. error', err);
+  //       return Promise.reject({
+  //         title: err.message,
+  //       });
+  //     });
+  // };
+
+  getTopRatedPath = () => `${this.#CATEGORIES.topRated}?`;
+
+  getQueryPath = searchQuery => {
+    this.urlParams = new URLSearchParams({
+      query: searchQuery,
+      include_adult: false,
+    });
+    return `${this.#CATEGORIES.query}?${this.urlParams}&`;
+  };
+
+  fetchMovies = path => {
+    const baseUrlParams = new URLSearchParams({
       api_key: this.#API_KEY,
       language: 'en-US',
       page: this.page,
     });
 
-    return fetch(`${this.#BASE_API_URL}/${this.#CATEGORIES.topRated}?${urlParams}`)
+    return fetch(`${this.#BASE_API_URL}/${path}${baseUrlParams}`)
       .then(res => {
         if (res.ok) {
           // console.log('OK', res);
@@ -114,6 +157,14 @@ export default class Application {
     this.fetchGenres().then(({ genres }) => {
       this.genres = genres;
     });
+  };
+
+  resetPage = () => {
+    this.page = 1;
+  };
+
+  incrementPage = () => {
+    this.page += 1;
   };
 
   /* ------------- НОРМАЛИЗАЦИЯ ДАННЫХ ---------- */
@@ -233,11 +284,15 @@ export default class Application {
       .catch(console.log);
   };
 
+  // Юра
+
   renderMyLibrary = () => {
     this.refs.cardsContainer.innerHTML = '';
-    this.refs.cardsTitle.classList.add(this.CSS.VIS_HIDDEN);
+    this.refs.cardsTitle.classList.add(this.CSS.IS_HIDDEN);
     this.renderMyLibraryMovies('Queue');
   };
+
+  // Юра
 
   renderMyLibraryMovies = key => {
     this.refs.cardsContainer.innerHTML = '';
@@ -257,6 +312,8 @@ export default class Application {
     }
   };
 
+  // Юра
+
   loadInfoFromLocalStorage = key => {
     try {
       return JSON.parse(localStorage.getItem(key));
@@ -272,7 +329,64 @@ export default class Application {
     return document.querySelector(selector);
   };
 
+  getMovies = path => {
+    return this.fetchMovies(path)
+      .then(data => {
+        const results = data.results;
+        if (!results.length) {
+          showAlert(query, ALERTS.NOT_FOUND);
+          return;
+        }
+
+        this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
+        this.incrementPage();
+        this.total_pages = data.total_pages;
+
+        const normalizedResults = this.getNormalizeMovies(results, this.genres);
+
+        const moviesCardsMarkup = this.makeMoviesCards(normalizedResults);
+
+        this.refs.cardsContainer.insertAdjacentHTML('beforeend', moviesCardsMarkup);
+      })
+      .catch(showError);
+  };
+
   // Ниже можно добавлять методы, которые касаются обработки событий
+
+  onLoadPage = () => {
+    this.resetPage();
+
+    this.path = this.getTopRatedPath();
+
+    this.getMovies(this.path);
+
+    this.getMovies(this.path).then(this.observeEndList).catch(showError);
+  };
+
+  observeEndList = () => {
+    const options = {
+      rootMargin: '50px',
+      threshold: 0.5,
+    };
+
+    const observer = new IntersectionObserver(this.onMoviesEnd, options);
+
+    observer.observe(this.refs.loadMoreAnchor);
+  };
+
+  onMoviesEnd = ([entry], observer) => {
+    if (!entry.isIntersecting) {
+      return;
+    }
+
+    if (this.total_pages + 1 === this.page) {
+      observer.disconnect();
+      this.refs.loadMoreAnchor.classList.add(this.CSS.IS_HIDDEN);
+      return;
+    }
+
+    this.getMovies(this.path); // загрузка новой порции
+  };
 
   // Паша Шеремет. Обработчик нажатия на кнопки HOME и Library
   /*
@@ -327,17 +441,22 @@ export default class Application {
 
   };
 
+  // Юра
+
   onLibraryBtnsClick = e => {
-    if (e.target.classList.contains('js-queue-btn')) {
+    const queueBtn = document.querySelector(this.refs.queueBtnSelector);
+    const watchedBtn = document.querySelector(this.refs.watchedBtnSelector);
+
+    if (e.target === queueBtn) {
       this.accentEl(e.target);
-      this.clearAccent(document.querySelector('.js-watched-btn'));
-      // this.clearAccent(this.refs.watchedBtnSelector);
+      this.clearAccent(watchedBtn);
+
       this.renderMyLibraryMovies('Queue');
     }
-    if (e.target.classList.contains('js-watched-btn')) {
+    if (e.target === watchedBtn) {
       this.accentEl(e.target);
-      // this.clearAccent(this.refs.queueBtnSelector);
-      this.clearAccent(document.querySelector('.js-queue-btn'));
+
+      this.clearAccent(queueBtn);
       this.renderMyLibraryMovies('Watched');
     }
   };
