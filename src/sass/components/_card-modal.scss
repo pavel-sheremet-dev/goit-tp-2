@@ -1,90 +1,88 @@
-
 .backdrop {
- position: fixed;
- z-index: 999;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    overflow-y: scroll;
-    opacity: 1;
-    transition: opacity $duration $cubic-bezier;
-    display: flex;
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow-y: scroll;
+  opacity: 1;
+  transition: opacity $duration $cubic-bezier;
+  display: flex;
   justify-content: center;
   align-items: flex-start;
   background: $loader-backdrop;
-  &--is-hidden {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity $duration $cubic-bezier,
-  transform $duration $cubic-bezier;
+  &.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity $duration $cubic-bezier, transform $duration $cubic-bezier;
+  }
 }
-}
-.modal__backdrop  {
+.modal__backdrop {
   position: absolute;
-    top: 50%;
-    left: 50%;
-    width:100%;
-    max-width: 280px;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  max-width: 280px;
   max-height: 958px;
-    padding: 20px;
-    transform: translate(-50%, -50%) scale(1);
-background-color: $secondary-text-color;
-border-radius: 4px;
-@media screen and (min-width: 768px) {
-max-width: 618px;
-max-height: 562px;
-padding: 28px;  } 
-@media screen and (min-width: 1024px) {
-  max-height: 568px;
-max-width: 882px;
- 
-padding: 30px; } 
-.backdrop--is-hidden & {
-  transform: translate(-50%, -50%) scale(0);
-  @media screen and (max-width: 768px){
-  padding: 93px 15px 94px;
-}
-}
+  padding: 20px;
+  transform: translate(-50%, -50%) scale(1);
+  background-color: $secondary-text-color;
+  border-radius: 4px;
+  @media screen and (min-width: 768px) {
+    max-width: 618px;
+    max-height: 562px;
+    padding: 28px;
+  }
+  @media screen and (min-width: 1024px) {
+    max-height: 568px;
+    max-width: 882px;
+
+    padding: 30px;
+  }
+  .backdrop.is-hidden & {
+    transform: translate(-50%, -50%) scale(0);
+    @media screen and (max-width: 768px) {
+      padding: 93px 15px 94px;
+    }
+  }
 }
 
 .photo-card {
   @media screen and (min-width: 768px) {
-display: flex;
- } 
+    display: flex;
+  }
 }
 
 .gallery__image-box {
-  
   margin-bottom: 30px;
   @media screen and (min-width: 768px) {
-margin-bottom: 0px;
-margin-right: 32px;
- } 
+    margin-bottom: 0px;
+    margin-right: 32px;
+  }
 }
 
 .gallery__image {
-border-radius: 2%;
+  border-radius: 2%;
   width: 100%;
   @media screen and (min-width: 768px) {
-width: 264px;
- } 
- @media screen and (min-width: 1024px) {
-  
-max-width: 396px;  } 
+    width: 264px;
+  }
+  @media screen and (min-width: 1024px) {
+    max-width: 396px;
+  }
 }
-
 
 .photo-card__title {
-    margin-bottom: 21px;
-font-weight: 500;
-font-size: 20px;
-line-height: 1.15;
-@media screen and (min-width: 1024px) {
-font-size: 30px;
-line-height: 1.16;  } 
+  margin-bottom: 21px;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.15;
+  @media screen and (min-width: 1024px) {
+    font-size: 30px;
+    line-height: 1.16;
+  }
 }
-
 
 .stats-list-box {
   display: flex;
@@ -95,51 +93,49 @@ line-height: 1.16;  }
 .stats-list {
   margin-right: 39px;
 }
-.stats-list__item{
-    display: flex;
-  
+.stats-list__item {
+  display: flex;
 }
 .stats-list__item:not(:last-child) {
-    margin-bottom: 10px;
-  
+  margin-bottom: 10px;
 }
 .stats-list__text {
-     font-size: 12px;
-     font-weight: 500;
-    color:$modal-text-color;
-    line-height: 1.3;
+  font-size: 12px;
+  font-weight: 500;
+  color: $modal-text-color;
+  line-height: 1.3;
 }
 
-.stats-list__text-api{
-    font-size: 12px;
-    line-height: 1.3;
-    color: $main-text-color;
-font-weight: 500;
+.stats-list__text-api {
+  font-size: 12px;
+  line-height: 1.3;
+  color: $main-text-color;
+  font-weight: 500;
 }
 
 .stats-list__text-api-genres:not(:last-child) {
-    margin-right: 2px;
+  margin-right: 2px;
 }
 .stats-list__text-api-genres:not(:last-child)::after {
   content: '/';
 }
 
-
 .text-about-container {
   max-height: 236px;
-overflow: scroll;
-margin-bottom: 10px;
+  overflow: scroll;
+  margin-bottom: 10px;
   &::-webkit-scrollbar {
-  width: 0;
-}
- @media screen and (min-width: 1024px) {
-max-height: 160px;} 
+    width: 0;
+  }
+  @media screen and (min-width: 1024px) {
+    max-height: 160px;
+  }
 }
 .stats-list__text-api--active {
-    padding: 1px 9px 1px 10px;
-    color: $secondary-text-color;
-    background: $main-brand-color;
-    border-radius: 5px;
+  padding: 1px 9px 1px 10px;
+  color: $secondary-text-color;
+  background: $main-brand-color;
+  border-radius: 5px;
 }
 
 .stats-list__text-api--margin-left {
@@ -147,9 +143,9 @@ max-height: 160px;}
 }
 
 .stats-list__text--about {
-margin-bottom: 10px;
-line-height: 1.3;
-font-weight: 500;
+  margin-bottom: 10px;
+  line-height: 1.3;
+  font-weight: 500;
 }
 
 .stats-list__text--about-api {
@@ -158,33 +154,35 @@ font-weight: 500;
 }
 
 .card__btn {
-    display: inline-block;
-    text-align: center;
-    font-family: inherit;
-    font-weight: 500;
-    font-size: 12px;
-    line-height: 1.3;
-    cursor: pointer;
-    border: 1px solid $main-text-color;
-border-radius: 5px;
-padding: 14px 6px 12px 6px;
-&:hover,
-&:focus {
-background-color:$main-brand-color;
-color: $secondary-text-color;
+  display: inline-block;
+  text-align: center;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.3;
+  cursor: pointer;
+  border: 1px solid $main-text-color;
+  border-radius: 5px;
+  padding: 14px 6px 12px 6px;
+  transition: background-color 250ms linear, border-color 250ms linear, color 150ms linear;
+  &:hover,
+  &:focus {
+    background-color: $main-brand-color;
+    color: $secondary-text-color;
+    border: 1px solid $main-brand-color;
   }
 }
 
 .card__btn-list {
-    display: flex;
+  display: flex;
 }
 
 .card__btn-item:not(:last-child) {
-    margin-right: 15px;
+  margin-right: 15px;
 }
 
 .card-modal__button {
-    position: absolute;
+  position: absolute;
   top: 8px;
   right: 8px;
   width: 20px;
@@ -197,9 +195,20 @@ color: $secondary-text-color;
   border-radius: 50%;
   cursor: pointer;
   background-color: $secondary-text-color;
-  transition: fill $duration $cubic-bezier;
-&:hover,
-&:focus {
-background:$main-brand-color;
+  transition: background-color 250ms linear;
+  &:hover,
+  &:focus {
+    background: $main-brand-color;
+    border: 1px solid $main-brand-color;
   }
+
+  &:hover .modal__close-btn,
+  &:focus .modal__close-btn {
+    stroke: $secondary-text-color;
+  }
+}
+
+.modal__close-btn {
+  stroke: $main-text-color;
+  transition: stroke 150ms linear;
 }
