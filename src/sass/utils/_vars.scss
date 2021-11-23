@@ -8,10 +8,15 @@ $main-text-color: #000000;
 $secondary-text-color: #ffffff;
 $footer-text-color: #545454;
 $alert-text-color: #ff001b;
+$modal-text-color:  #8C8C8C;
 
 //placeholder
 
 $placeholder-color: rgba(255, 255, 255, 0.5);
+
+// transition
+$duration: 250ms;
+$cubic-bezier: cubic-bezier(0.4, 0, 0.2, 1);
 
 // brand-colors
 $main-brand-color: #ff6b08;

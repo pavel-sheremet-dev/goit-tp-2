@@ -1,24 +1,91 @@
+.cards__container {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
 .cards__list {
   display: block;
 }
 
 .cards__item {
+  position: relative;
   width: 100%;
-  outline: 1px solid green;
+  // outline: 1px solid green;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cards__item:not(:last-child) {
+  margin-bottom: 20px;
+}
+
+.cards__link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .cards__img {
   width: 100%;
+  height: calc((100vw - 40px) * 1.43);
+  margin-bottom: 10px;
+  object-fit: cover;
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.cards__title {
+  text-transform: uppercase;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.33;
+}
+
+.cards__genres {
+  font-style: normal;
+  margin-top: auto;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.33;
+  color: $main-brand-color;
+}
+
+.cards__rating {
+  padding: 1px 8px;
+  margin-left: 10px;
+  border-radius: 5px;
+  background-color: $main-brand-color;
+  color: $secondary-text-color;
+
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.17;
+
+  // display: flex;
+  // align-items: center;
+  // text-align: center;
 }
 
 @media screen and (min-width: 480px) {
   .cards__item {
-    width: 440px;
+    width: 350px;
+  }
+
+  .cards__img {
+    width: 350px;
+    height: calc(350px * 1.43);
   }
 }
 
 // 768-1199 adaptive tablet container
 @media screen and (min-width: 768px) {
+  .cards__container {
+    padding-top: 60px;
+    padding-bottom: 60px;
+  }
+
   .cards__list {
     display: grid;
     gap: 30px;
@@ -27,6 +94,15 @@
 
   .cards__item {
     width: 295px;
+  }
+
+  .cards__item:not(:last-child) {
+    margin-bottom: 0;
+  }
+
+  .cards__img {
+    width: 100%;
+    height: calc(295px * 1.49);
   }
 }
 
@@ -39,6 +115,19 @@
   .cards__item {
     width: 273px;
   }
+
+  .cards__img {
+    width: 100%;
+    height: calc(273px * 1.61);
+  }
+}
+
+.cards__loadmore.is-hidden {
+  display: none;
+}
+
+.cards__loadmore {
+  display: block;
 }
 
 // Потом добавим ожидание загрузки, используя спиннер

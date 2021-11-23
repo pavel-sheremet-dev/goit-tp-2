@@ -19,7 +19,7 @@ export default () => {
     devsLink: document.querySelector('.js-devs-link'),
     devsModal: document.querySelector('.js-devs-modal'),
     cardsTitle: document.querySelector('.cards__title'),
-
+    cardModalContent: document.querySelector('.js-card-modal-content'),                                 
     // selectors example
     watchedBtnSelector: document.querySelector('.js-watched-btn'),
     queueBtnSelector: document.querySelector('.js-queue-btn'),

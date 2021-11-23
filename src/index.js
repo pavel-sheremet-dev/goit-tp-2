@@ -8,6 +8,8 @@ import makeLibraryBtns from './templating/libraryButtons.hbs';
 import getRefs from './js/data/references';
 import CSS from './js/data/css';
 import spriteUrl from './images/sprite.svg';
+import brokenImgUrl from './images/broken.png';
+// import {dataCreate, getGenres} from '../src/js/data/workWithGenres';
 
 const refs = getRefs();
 
@@ -19,6 +21,7 @@ const options = {
   refs,
   CSS,
   spriteUrl,
+  brokenImgUrl,
 };
 
 const app = new Application(options);

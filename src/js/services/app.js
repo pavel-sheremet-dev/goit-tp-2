@@ -6,6 +6,7 @@ export default class Application {
   #BASE_API_URL = 'https://api.themoviedb.org/3';
   #CATEGORIES = {
     topRated: 'movie/top_rated',
+    genre: 'genre/movie/list',
   };
 
   constructor({
@@ -16,6 +17,7 @@ export default class Application {
     refs,
     CSS,
     spriteUrl,
+    brokenImgUrl,
   }) {
     this.makeMoviesCards = makeMoviesCards;
     this.makeMovieDetails = makeMovieDetails;
@@ -25,7 +27,15 @@ export default class Application {
     this.refs = refs;
     this.CSS = CSS;
     this.spriteUrl = { url: spriteUrl };
+    this.genres = [];
+    this._not_found_img = brokenImgUrl;
   }
+  // пример использование функции по работе с жанрами и годом в запросе топ фильмов
+  // fetch(".......").then(res=>res.json()).then(films => {
+  // const allGenres = this.getGenres();
+  // const obj = this.dataCreate(films.results, allGenres)
+  // функция рендера карточки(obj)
+  // })
 
   // Методы лучше записывать как стрелочные функции, в таком случае не теряется контекст, если метод передается как коллбек-функция
 
@@ -39,37 +49,10 @@ export default class Application {
   init = () => {
     // Сюда добавляем все действия, которые должны произойти при загрузке стартовой страницы, например слушатели событий, отрисовка популярных фильмов.
     this.loadListeners();
+    this.getGenres();
   };
 
   // Ниже можно добавлять методы, которые касаются работы с API
-
-  // Пример ассинхронной функции
-
-  // fecthTopRatedFilms = async () => {
-  //   try {
-  //     const urlParams = new URLSearchParams({
-  //       api_key: this.#API_KEY,
-  //       language: 'en-US',
-  //       page: this.page,
-  //     });
-
-  //     const res = await fetch(`${this.#BASE_API_URL}/${this.#CATEGORIES.topRated}?${urlParams}`); // await
-  //     if (res.ok) {
-  //       console.log('OK');
-  //       return res.json();
-  //     }
-  //     console.log('No OK');
-  //     return Promise.reject({
-  //       title: res.status,
-  //       message: res.statusText,
-  //     });
-  //   } catch (error) {
-  //     console.log('No OK. error');
-  //     return Promise.reject({
-  //       title: error.message,
-  //     });
-  //   }
-  // };
 
   // Пример стандартной фукнции (метода)
 
@@ -80,13 +63,13 @@ export default class Application {
       page: this.page,
     });
 
-    fetch(`${this.#BASE_API_URL}/${this.#CATEGORIES.topRated}?${urlParams}`)
+    return fetch(`${this.#BASE_API_URL}/${this.#CATEGORIES.topRated}?${urlParams}`)
       .then(res => {
         if (res.ok) {
-          console.log('OK', res);
+          // console.log('OK', res);
           return res.json();
         }
-        console.log('No OK', res, res.status, res.statusText);
+        // console.log('No OK', res, res.status, res.statusText);
         return Promise.reject({
           title: res.status,
           message: res.statusText,
@@ -99,6 +82,84 @@ export default class Application {
         });
       });
   };
+
+  fetchGenres = () => {
+    const urlParams = new URLSearchParams({
+      api_key: this.#API_KEY,
+      language: 'en-US',
+    });
+    return fetch(`${this.#BASE_API_URL}/${this.#CATEGORIES.genre}?${urlParams}`)
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        }
+        return Promise.reject({
+          title: res.status,
+          message: res.statusText,
+        });
+      })
+      .catch(err => {
+        console.log('No OK. error', err);
+        return Promise.reject({
+          title: err.message,
+        });
+      });
+  };
+
+  getGenres = () => {
+    this.fetchGenres().then(({ genres }) => {
+      this.genres = genres;
+    });
+  };
+
+  /* ------------- НОРМАЛИЗАЦИЯ ДАННЫХ ---------- */
+
+  // Создание нового свойства с годом (для всех)
+  createYear(obj) {
+    const date = new Date(obj.release_date);
+    return obj.release_date ? date.getFullYear() : '';
+  }
+  // Создание нового свойства с жанрами для трендов
+  createGenresFromTOP(array, genres) {
+    let newArr = array
+      .map(id => genres.filter(element => element.id === id))
+      .slice(0, 3)
+      .flat();
+    if (!newArr.length) {
+      return [{ id: 7777777, name: 'Other' }];
+    }
+    if (newArr.length === 3) {
+      newArr.splice(2, 1, { id: 7777777, name: 'Other' });
+      // console.log(newArr);
+      return newArr;
+    }
+    // console.log('масив без иф', newArr);
+    return newArr;
+  }
+
+  // Создание нового свойства с жанрами для запроса по ID фильма
+  createGenresFromID(array) {
+    let genresNameArr = array.genres.map(genre => genre.name).flat();
+
+    return genresNameArr;
+  }
+
+  // Соединение информации о фильме для страницы home
+  getNormalizeMovies(films, allGenres) {
+    return films.map(film => {
+      const imageUrl = film.poster_path
+        ? `https://image.tmdb.org/t/p/w500${film.poster_path}`
+        : this._not_found_img;
+      return {
+        ...film,
+        year: this.createYear(film),
+        genres: this.createGenresFromTOP(film.genre_ids, allGenres),
+        img: imageUrl,
+      };
+    });
+  }
+
+  /* ------------ НОРМАЛИЗАЦИЯ ДАННЫХ КОНЕЦ ------------ */
 
   // Ниже можно добавлять методы, которые касаются работы с DOM
 

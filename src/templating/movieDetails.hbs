@@ -1,0 +1,71 @@
+<div class='photo-card'>
+  <button type='button' class='card-modal__button' data-action='close-card-modal'>
+    <svg class='modal__close-btn' width='14' height='14'>
+      <use href='/sprite.5ec50489.svg#icon-close'></use>
+    </svg>
+  </button>
+  <div class='gallery__image-box'>
+    <img
+      class='gallery__image'
+      width='240'
+      src='https://image.tmdb.org/t/p/w500{{poster_path}}'
+      alt=''
+    />
+  </div>
+  <div class='content-box'>
+    <h3 class='photo-card__title'>{{original_title}} </h3>
+    <div class='stats-list-box'>
+      <ul class='stats-list list'>
+        <li class='stats-list__item'>
+          <p class='stats-list__text'>Vote/Votes</p>
+        </li>
+        <li class='stats-list__item'>
+          <p class='stats-list__text'>Popularity</p>
+        </li>
+        <li class='stats-list__item'>
+          <p class='stats-list__text'>Original Title</p>
+        </li>
+        <li class='stats-list__item'>
+          <p class='stats-list__text'>Genre</p>
+        </li>
+      </ul>
+      <ul class='stats-list-api list'>
+        <li class='stats-list__item'>
+          <p class='stats-list__text-api'>
+            <span class='stats-list__text-api--active'>{{vote_average}}</span>
+            /
+            {{vote_count}}
+          </p>
+        </li>
+        <li class='stats-list__item'>
+          <p class='stats-list__text-api'>{{popularity}}</p>
+        </li>
+        <li class='stats-list__item'>
+          <p class='stats-list__text-api'>{{original_title}}</p>
+        </li>
+        <li class='stats-list__item'>
+          {{#each genres}}
+            <p class='stats-list__text-api stats-list__text-api-genres'>{{name}}</p>
+          {{/each}}
+        </li>
+
+      </ul>
+    </div>
+
+    <p class='stats-list__text--about'>About </p>
+    <div class='text-about-container'>
+      <p class='stats-list__text--about-api'>{{overview}}</p>
+    </div>
+
+    <ul class='card__btn-list list'>
+      <li class='card__btn-item'>
+        <button type='button' class='card__btn accent' data-action='add-to-watched'>
+          ADD TO WATCHED
+        </button>
+      </li>
+      <li class='card__btn-item'>
+        <button type='button' class='card__btn' data-action='add-to-queue'>ADD TO QUEUE</button>
+      </li>
+    </ul>
+  </div>
+</div>
