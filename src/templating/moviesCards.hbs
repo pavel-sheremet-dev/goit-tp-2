@@ -1,2 +1,15 @@
 {{! Начало пути к Img ниже, остаток пути приходит в результатах запроса на API }}
 {{! https://image.tmdb.org/t/p/w500 }}
+
+{{#each this}}
+  <li class='cards__item' data-id='{{id}}'>
+    <a href='#' class='cards__link link'>
+      <div class='cards__loader'></div>
+      <img class='cards__img' src='{{poster_path}}' alt='постер фильма {{title}}' loading='lazy' />
+      <h3 class='cards__title'>{{title}}</h3>
+      {{!-- <p class='cards__genres'>{{normalizedGenres}}
+        |
+        {{release_date}}<span class='cards__rating'>{{vote_average}}</span></p> --}}
+    </a>
+  </li>
+{{/each}}
