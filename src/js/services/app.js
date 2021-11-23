@@ -8,6 +8,7 @@ export default class Application {
     topRated: 'movie/top_rated',
   };
 
+
   constructor({
     makeMoviesCards,
     makeMovieDetails,
@@ -16,7 +17,10 @@ export default class Application {
     refs,
     CSS,
     spriteUrl,
+    getGenres,
+    dataCreate
   }) {
+
     this.makeMoviesCards = makeMoviesCards;
     this.makeMovieDetails = makeMovieDetails;
     this.makeHeaderForm = makeHeaderForm;
@@ -25,7 +29,16 @@ export default class Application {
     this.refs = refs;
     this.CSS = CSS;
     this.spriteUrl = { url: spriteUrl };
+    this.getGenres = getGenres;
+    this.dataCreate = dataCreate;
   }
+  // пример использование функции по работе с жанрами и годом в запросе топ фильмов
+// fetch(".......").then(res=>res.json()).then(films => {
+// const allGenres = this.getGenres();
+// const obj = this.dataCreate(films.results, allGenres)
+// функция рендера карточки(obj)
+// })
+
 
   // Методы лучше записывать как стрелочные функции, в таком случае не теряется контекст, если метод передается как коллбек-функция
 
