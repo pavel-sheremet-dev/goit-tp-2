@@ -21,5 +21,7 @@ export default () => {
     // selectors example
     watchedBtnSelector: '.js-watched-btn',
     queueBtnSelector: '.js-queue-btn',
+    formSelector: '#search-form',
+    libraryBtnsSelector: '.js-library-btns',
   };
 };
