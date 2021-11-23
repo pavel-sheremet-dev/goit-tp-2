@@ -17,8 +17,12 @@ export default class Application {
     refs,
     CSS,
     spriteUrl,
-    brokenImgUrl,
+     brokenImgUrl,
   }) {
+
+  
+  
+
     this.makeMoviesCards = makeMoviesCards;
     this.makeMovieDetails = makeMovieDetails;
     this.makeHeaderForm = makeHeaderForm;
@@ -319,6 +323,8 @@ export default class Application {
   onSearchFormSubmit = e => {
     e.preventDefault();
     console.log(e.target);
+   
+
   };
 
   onLibraryBtnsClick = e => {
