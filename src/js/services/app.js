@@ -42,7 +42,7 @@ export default class Application {
   loadListeners = () => {
     this.refs.navigation.addEventListener('click', this.onNavigationListClick);
     this.refs.form.addEventListener('submit', this.onSearchFormSubmit);
-    this.refs.myLibraryBtn.addEventListener('click', this.renderMyLibrary);
+    // this.refs.myLibraryBtn.addEventListener('click', this.renderMyLibrary);
     // Сюда добавляем слушатели событий, которые должны подключиться при первой загрузке страницы (например клики на кнопки HOME и My Library)
   };
 
@@ -229,11 +229,15 @@ export default class Application {
       .catch(console.log);
   };
 
+  // Юра
+
   renderMyLibrary = () => {
     this.refs.cardsContainer.innerHTML = '';
-    this.refs.cardsTitle.classList.add(this.CSS.VIS_HIDDEN);
+    this.refs.cardsTitle.classList.add(this.CSS.IS_HIDDEN);
     this.renderMyLibraryMovies('Queue');
   };
+
+  // Юра
 
   renderMyLibraryMovies = key => {
     this.refs.cardsContainer.innerHTML = '';
@@ -252,6 +256,8 @@ export default class Application {
       );
     }
   };
+
+  // Юра
 
   loadInfoFromLocalStorage = key => {
     try {
@@ -321,17 +327,22 @@ export default class Application {
     console.log(e.target);
   };
 
+  // Юра
+
   onLibraryBtnsClick = e => {
-    if (e.target.classList.contains('js-queue-btn')) {
+    const queueBtn = document.querySelector(this.refs.queueBtnSelector);
+    const watchedBtn = document.querySelector(this.refs.watchedBtnSelector);
+
+    if (e.target === queueBtn) {
       this.accentEl(e.target);
-      this.clearAccent(document.querySelector('.js-watched-btn'));
-      // this.clearAccent(this.refs.watchedBtnSelector);
+      this.clearAccent(watchedBtn);
+
       this.renderMyLibraryMovies('Queue');
     }
-    if (e.target.classList.contains('js-watched-btn')) {
+    if (e.target === watchedBtn) {
       this.accentEl(e.target);
-      // this.clearAccent(this.refs.queueBtnSelector);
-      this.clearAccent(document.querySelector('.js-queue-btn'));
+
+      this.clearAccent(queueBtn);
       this.renderMyLibraryMovies('Watched');
     }
   };
