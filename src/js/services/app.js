@@ -24,9 +24,14 @@ export default class Application {
     this.makeHeaderForm = makeHeaderForm;
     this.makeLibraryBtns = makeLibraryBtns;
     this.page = 1;
+    this.total_pages = null;
     this.refs = refs;
     this.CSS = CSS;
     this.spriteUrl = { url: spriteUrl };
+    this.id = null;
+    this.lang = 'en-US';
+    this._path = 'movie/top_rated';
+    this._urlParams = '';
     this.genres = [];
     this._not_found_img = brokenImgUrl;
   }
