@@ -18,7 +18,8 @@ export default () => {
     addToQueueBtn: document.querySelector('button[data-action="add-to-queue"]'),
     devsLink: document.querySelector('.js-devs-link'),
     devsModal: document.querySelector('.js-devs-modal'),
-    cardModalContent: document.querySelector('.js-card-modal-content'),                                 
+    cardsTitle: document.querySelector('.cards__title'),
+    cardModalContent: document.querySelector('.js-card-modal-content'),
     // selectors example
     watchedBtnSelector: '.js-watched-btn',
     queueBtnSelector: '.js-queue-btn',
