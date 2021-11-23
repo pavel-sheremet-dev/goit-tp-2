@@ -25,5 +25,6 @@ export default () => {
     queueBtnSelector: '.js-queue-btn',
     formSelector: '#search-form',
     libraryBtnsSelector: '.js-library-btns',
+    jsDevsModal: document.querySelector('.js-devs-modal')
   };
 };

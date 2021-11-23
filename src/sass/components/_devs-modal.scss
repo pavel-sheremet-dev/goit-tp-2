@@ -1,0 +1,23 @@
+
+ .js-devs-modal {
+    position: fixed;
+    z-index: -1;
+    // pointer-events: none;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow-y: scroll;
+    opacity: 1;
+    transition: opacity $duration $cubic-bezier;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background: $loader-backdrop;
+}
+
+.js-open-modal{
+opacity: 1;
+z-index: 999;
+
+}
