@@ -4,7 +4,7 @@
       <div class='cards__loader'></div>
       <img class='cards__img' src='{{img}}' alt='постер фильма {{title}}' loading='lazy' />
       <h3 class='cards__title'>{{title}}</h3>
-      <p class='cards__genres'>{{#each genres}}{{this.name}}
+      <p class='cards__genres'>{{#each genres}}{{this.name}}{{#unless @last}},{{/unless}}
         {{/each}}
         |
         {{year}}<span class='cards__rating'>{{vote_average}}</span>

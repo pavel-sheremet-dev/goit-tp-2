@@ -164,12 +164,20 @@ export default class Application {
   };
 
   /* ------------- НОРМАЛИЗАЦИЯ ДАННЫХ ---------- */
+  pad(value) {
+    return String(value).padEnd(3, '.0');}
 
   // Создание нового свойства с годом (для всех)
   createYear(obj) {
     const date = new Date(obj.release_date);
     return obj.release_date ? date.getFullYear() : '';
   }
+  createImage = (obj) => {
+    return obj.poster_path
+    ? `https://image.tmdb.org/t/p/w500${obj.poster_path}`
+    : this._not_found_img;
+  }
+
   // Создание нового свойства с жанрами для трендов
   createGenresFromTOP(array, genres) {
     let newArr = array
@@ -181,35 +189,32 @@ export default class Application {
     }
     if (newArr.length === 3) {
       newArr.splice(2, 1, { id: 7777777, name: 'Other' });
-      // console.log(newArr);
       return newArr;
     }
-    // console.log('масив без иф', newArr);
     return newArr;
   }
 
   // Создание нового свойства с жанрами для запроса по ID фильма
-  createGenresFromID(array) {
-    let genresNameArr = array.genres.map(genre => genre.name).flat();
-
-    return genresNameArr;
+  createGenresFromID(obj) {
+    return obj.genres.map(genre => genre.name).flat();
   }
 
+  normalize = (film, metod) =>({
+    ...film,
+    year: this.createYear(film),
+    genres: metod,
+    img: this.createImage(film),
+    vote_average: this.pad(film.vote_average)
+  })
   // Соединение информации о фильме для страницы home
-  getNormalizeMovies(films, allGenres) {
-    return films.map(film => {
-      const imageUrl = film.poster_path
-        ? `https://image.tmdb.org/t/p/w500${film.poster_path}`
-        : this._not_found_img;
-      return {
-        ...film,
-        year: this.createYear(film),
-        genres: this.createGenresFromTOP(film.genre_ids, allGenres),
-        img: imageUrl,
-      };
+  getNormalizeMovies(films, allGenres){
+    return films.map(film => {return this.normalize(film,this.createGenresFromTOP(film.genre_ids, allGenres))
     });
   }
-
+// Соединение информации для запроса по ID
+  getNormalizeOneMovie(film){
+  return this.normalize(film,this.createGenresFromID(film))
+  };
   /* ------------ НОРМАЛИЗАЦИЯ ДАННЫХ КОНЕЦ ------------ */
 
   // Ниже можно добавлять методы, которые касаются работы с DOM
