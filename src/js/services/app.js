@@ -165,18 +165,19 @@ export default class Application {
 
   /* ------------- НОРМАЛИЗАЦИЯ ДАННЫХ ---------- */
   pad(value) {
-    return String(value).padEnd(3, '.0');}
+    return String(value).padEnd(3, '.0');
+  }
 
   // Создание нового свойства с годом (для всех)
   createYear(obj) {
     const date = new Date(obj.release_date);
     return obj.release_date ? date.getFullYear() : '';
   }
-  createImage = (obj) => {
+  createImage = obj => {
     return obj.poster_path
-    ? `https://image.tmdb.org/t/p/w500${obj.poster_path}`
-    : this._not_found_img;
-  }
+      ? `https://image.tmdb.org/t/p/w500${obj.poster_path}`
+      : this._not_found_img;
+  };
 
   // Создание нового свойства с жанрами для трендов
   createGenresFromTOP(array, genres) {
@@ -199,22 +200,23 @@ export default class Application {
     return obj.genres.map(genre => genre.name).flat();
   }
 
-  normalize = (film, metod) =>({
+  normalize = (film, metod) => ({
     ...film,
     year: this.createYear(film),
     genres: metod,
     img: this.createImage(film),
-    vote_average: this.pad(film.vote_average)
-  })
+    vote_average: this.pad(film.vote_average),
+  });
   // Соединение информации о фильме для страницы home
-  getNormalizeMovies(films, allGenres){
-    return films.map(film => {return this.normalize(film,this.createGenresFromTOP(film.genre_ids, allGenres))
+  getNormalizeMovies(films, allGenres) {
+    return films.map(film => {
+      return this.normalize(film, this.createGenresFromTOP(film.genre_ids, allGenres));
     });
   }
-// Соединение информации для запроса по ID
-  getNormalizeOneMovie(film){
-  return this.normalize(film,this.createGenresFromID(film))
-  };
+  // Соединение информации для запроса по ID
+  getNormalizeOneMovie(film) {
+    return this.normalize(film, this.createGenresFromID(film));
+  }
   /* ------------ НОРМАЛИЗАЦИЯ ДАННЫХ КОНЕЦ ------------ */
 
   // Ниже можно добавлять методы, которые касаются работы с DOM
@@ -275,6 +277,12 @@ export default class Application {
   показывает контейрер
   */
 
+  clearCardsContainer = () => {
+    this.refs.loadMoreAnchor.classList.add(this.CSS.IS_HIDDEN);
+    this.refs.cardsContainer.innerHTML = '';
+    this.resetPage();
+  };
+
   renderHeaderMarkup = (markupTemplate, data = '') => {
     return this.clearHeaderContainer()
       .then(() => {
@@ -287,17 +295,21 @@ export default class Application {
 
   // Юра
 
-  renderMyLibrary = () => {
-    this.refs.cardsContainer.innerHTML = '';
-    this.refs.cardsTitle.classList.add(this.CSS.IS_HIDDEN);
-    this.renderMyLibraryMovies('Queue');
-  };
+  // renderMyLibrary = () => {
+  //   this.clearCardsContainer();
+
+  //   this.refs.cardsTitle.classList.add(this.CSS.IS_HIDDEN);
+  //   this.renderMyLibraryMovies('Queue');
+  // };
 
   // Юра
 
   renderMyLibraryMovies = key => {
-    this.refs.cardsContainer.innerHTML = '';
+    this.clearCardsContainer();
+
     const localStorageInfo = this.loadInfoFromLocalStorage(key);
+
+    console.log(localStorageInfo);
 
     if (localStorageInfo == null || localStorageInfo.length == 0) {
       this.refs.cardsContainer.insertAdjacentHTML(
@@ -315,6 +327,8 @@ export default class Application {
 
   // Юра
 
+  /* ---------------- LS -------------------- */
+
   loadInfoFromLocalStorage = key => {
     try {
       return JSON.parse(localStorage.getItem(key));
@@ -323,6 +337,26 @@ export default class Application {
       return [];
     }
   };
+
+  loadBtnStatus = LibraryBtn => {
+    localStorage.setItem('button', LibraryBtn.dataset.key);
+  };
+
+  getActiveLibraryBtn = () => {
+    try {
+      const currentKey = localStorage.getItem('button');
+      const currentKeyBtn = document.querySelector(`[data-key="${currentKey}"]`);
+      this.accentEl(currentKeyBtn);
+      return currentKeyBtn;
+    } catch (error) {
+      console.log(error);
+      const defaultBtn = document.querySelector(this.refs.queueBtnSelector);
+      this.accentEl(defaultBtn);
+      return defaultBtn;
+    }
+  };
+
+  /* ---------------- LS END -------------------- */
 
   // Паша Ш. Функция для поиска елемента, по желанию можно юзать, когда это надо.
 
@@ -344,7 +378,6 @@ export default class Application {
         this.total_pages = data.total_pages;
 
         const normalizedResults = this.getNormalizeMovies(results, this.genres);
-
         const moviesCardsMarkup = this.makeMoviesCards(normalizedResults);
 
         this.refs.cardsContainer.insertAdjacentHTML('beforeend', moviesCardsMarkup);
@@ -358,8 +391,6 @@ export default class Application {
     this.resetPage();
 
     this.path = this.getTopRatedPath();
-
-    this.getMovies(this.path);
 
     this.getMovies(this.path).then(this.observeEndList).catch(showError);
   };
@@ -417,6 +448,11 @@ export default class Application {
         formRef.addEventListener('submit', this.onSearchFormSubmit);
       });
 
+      this.clearCardsContainer();
+
+      this.path = this.getTopRatedPath();
+      this.getMovies(this.path);
+
       return;
     }
 
@@ -427,8 +463,13 @@ export default class Application {
       this.renderHeaderMarkup(this.makeLibraryBtns).then(() => {
         const libraryBtns = document.querySelector(this.refs.libraryBtnsSelector);
 
+        const activeLibraryBtn = this.getActiveLibraryBtn();
+        this.renderMyLibraryMovies(activeLibraryBtn.dataset.key);
+
         libraryBtns.addEventListener('click', this.onLibraryBtnsClick);
       });
+
+      this.clearCardsContainer();
 
       this.refs.form.removeEventListener('submit', this.onSearchFormSubmit);
       return;
@@ -447,16 +488,20 @@ export default class Application {
     const watchedBtn = document.querySelector(this.refs.watchedBtnSelector);
 
     if (e.target === queueBtn) {
+      this.loadBtnStatus(e.target);
+
       this.accentEl(e.target);
       this.clearAccent(watchedBtn);
 
-      this.renderMyLibraryMovies('Queue');
+      this.renderMyLibraryMovies(e.target.dataset.key);
     }
     if (e.target === watchedBtn) {
+      this.loadBtnStatus(e.target);
+
       this.accentEl(e.target);
 
       this.clearAccent(queueBtn);
-      this.renderMyLibraryMovies('Watched');
+      this.renderMyLibraryMovies(e.target.dataset.key);
     }
   };
 }
