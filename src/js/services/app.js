@@ -270,6 +270,12 @@ export default class Application {
   показывает контейрер
   */
 
+  clearCardsContainer = () => {
+    this.refs.loadMoreAnchor.classList.add(this.CSS.IS_HIDDEN);
+    this.refs.cardsContainer.innerHTML = '';
+    this.resetPage();
+  };
+
   renderHeaderMarkup = (markupTemplate, data = '') => {
     return this.clearHeaderContainer()
       .then(() => {
@@ -283,7 +289,8 @@ export default class Application {
   // Юра
 
   renderMyLibrary = () => {
-    this.refs.cardsContainer.innerHTML = '';
+    this.clearCardsContainer();
+
     this.refs.cardsTitle.classList.add(this.CSS.IS_HIDDEN);
     this.renderMyLibraryMovies('Queue');
   };
@@ -291,8 +298,11 @@ export default class Application {
   // Юра
 
   renderMyLibraryMovies = key => {
-    this.refs.cardsContainer.innerHTML = '';
+    this.clearCardsContainer();
+
     const localStorageInfo = this.loadInfoFromLocalStorage(key);
+
+    console.log(localStorageInfo);
 
     if (localStorageInfo == null || localStorageInfo.length == 0) {
       this.refs.cardsContainer.insertAdjacentHTML(
@@ -339,7 +349,6 @@ export default class Application {
         this.total_pages = data.total_pages;
 
         const normalizedResults = this.getNormalizeMovies(results, this.genres);
-
         const moviesCardsMarkup = this.makeMoviesCards(normalizedResults);
 
         this.refs.cardsContainer.insertAdjacentHTML('beforeend', moviesCardsMarkup);
@@ -353,8 +362,6 @@ export default class Application {
     this.resetPage();
 
     this.path = this.getTopRatedPath();
-
-    this.getMovies(this.path);
 
     this.getMovies(this.path).then(this.observeEndList).catch(showError);
   };
