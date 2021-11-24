@@ -344,17 +344,15 @@ export default class Application {
   };
 
   getActiveLibraryBtn = () => {
-    try {
-      const currentKey = localStorage.getItem('button');
-      const currentKeyBtn = document.querySelector(`[data-key="${currentKey}"]`);
-      this.accentEl(currentKeyBtn);
-      return currentKeyBtn;
-    } catch (error) {
-      console.log(error);
+    const currentKey = localStorage.getItem('button');
+    if (!currentKey) {
       const defaultBtn = document.querySelector(this.refs.queueBtnSelector);
       this.accentEl(defaultBtn);
       return defaultBtn;
     }
+    const currentKeyBtn = document.querySelector(`[data-key="${currentKey}"]`);
+    this.accentEl(currentKeyBtn);
+    return currentKeyBtn;
   };
 
   /* ---------------- LS END -------------------- */
