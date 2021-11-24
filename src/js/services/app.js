@@ -1,5 +1,6 @@
 import { showAlert, showError } from '../vendors/alerts';
 import ALERTS from '../data/alertsMsgs';
+import artemTamplate from '..//../templating/movieDetails';
 
 export default class Application {
   #API_KEY = '6759d249684e99a49309af19f6af0ff2';
@@ -54,6 +55,9 @@ export default class Application {
     this.refs.footerDevsLink.addEventListener('click', this.modalOverflow)
     this.refs.clossModal.addEventListener('click', this.closeModalWindow)
     // this.refs.myLibraryBtn.addEventListener('click', this.renderMyLibrary);
+    //Artem modal-window
+    this.refs.cardsContainer.addEventListener('click', this.onCardsClick);
+    // this.refs.closeBtnModal.addEventListener('click', this.closeShowModal);
     // Сюда добавляем слушатели событий, которые должны подключиться при первой загрузке страницы (например клики на кнопки HOME и My Library)
   };
 
@@ -173,6 +177,28 @@ export default class Application {
   incrementPage = () => {
     this.page += 1;
   };
+
+  //Artem: fetch for details once films
+
+  fetchFilmByDetails = async (id) => {
+    const res = await fetch(
+      `${this.#BASE_API_URL}/movie/${id}?api_key=${this.#API_KEY}&append_to_response=videos`,
+    );
+    if (res.ok) {
+      return res.json();
+    }
+    console.log('no responce');
+    return Promise.reject({
+      title: res.status,
+      message: res.statusText,
+    });
+  };
+  catch(error) {
+    console.log(error);
+    return Promise.reject({
+      title: error.message,
+    });
+  }
 
   /* ------------- НОРМАЛИЗАЦИЯ ДАННЫХ ---------- */
   pad(value) {
@@ -517,6 +543,51 @@ export default class Application {
       this.renderMyLibraryMovies(e.target.dataset.key);
     }
   };
+
+  // Artem: function for listener function
+  onCardsClick = e => {
+    e.preventDefault();
+    // console.log(e.target.closest('li').dataset.id);
+    const id = e.target.closest('li').dataset.id;
+    const forShowTampl = e.target.classList.contains('cards__list');
+    if (forShowTampl) {
+      return;
+    }
+    
+    this.openShowModal();
+
+    this.fetchFilmByDetails(id)
+      .then(data => this.onceFilmRender(data))
+      .catch(error => {
+        console.log(error);
+      });
+  };
+  // Artem: methods open-close modal close
+  onceFilmRender = data => {
+    const markup = artemTamplate(data);
+    this.refs.cardModal.innerHTML = markup;
+
+    const btnCloseModal = document.querySelector('.card-modal__button');
+    btnCloseModal.addEventListener('click', this.closeShowModal);
+    return;
+  };
+
+  openShowModal = e => {
+    window.addEventListener('keydown', this.closeByEsc);
+    this.refs.cardModal.classList.remove('is-hidden');
+  };
+
+  closeShowModal = () => {
+    window.removeEventListener('keydown', this.closeByEsc);
+    this.refs.cardModal.classList.add('is-hidden');
+  };
+
+  closeByEsc = event => {
+    if (event.code === 'Escape') {
+      this.closeShowModal();
+    }
+  };
+
   
 
 modalOverflow = () => {
@@ -528,6 +599,7 @@ closeModalWindow = () =>{
   this.refs.jsDevsModal.classList.remove('js-open-modal')
 
 }
+
 
 
 
