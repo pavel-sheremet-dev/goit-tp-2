@@ -7,6 +7,7 @@ export default class Application {
   #CATEGORIES = {
     topRated: 'movie/top_rated',
     genre: 'genre/movie/list',
+    query: 'search/movie',
   };
 
   constructor({
@@ -478,7 +479,17 @@ export default class Application {
 
   onSearchFormSubmit = e => {
     e.preventDefault();
-    console.log(e.target);
+    const form = e.currentTarget;
+    const query = form.elements.query.value;
+    const normalizedQuery = query.toLowerCase().trim().split(' ').join('+');
+
+    this.clearCardsContainer();
+
+    this.path = this.getQueryPath(normalizedQuery);
+
+    console.log(this.path);
+
+    this.getMovies(this.path).then(this.observeEndList).catch(showError);
   };
 
   // Юра
