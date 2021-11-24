@@ -320,6 +320,8 @@ export default class Application {
 
   // Юра
 
+  /* ---------------- LS -------------------- */
+
   loadInfoFromLocalStorage = key => {
     try {
       return JSON.parse(localStorage.getItem(key));
@@ -328,6 +330,24 @@ export default class Application {
       return [];
     }
   };
+
+  loadBtnStatus = LibraryBtn => {
+    localStorage.setItem('button', LibraryBtn.dataset.key);
+  };
+
+  getActiveLibraryBtn = () => {
+    try {
+      const currentKey = localStorage.getItem('button');
+      const currentKeyBtn = document.querySelector(`[data-key="${currentKey}"]`);
+      this.accentEl(currentKeyBtn);
+    } catch (error) {
+      console.log(error);
+      const defaultBtn = document.querySelector(this.refs.queueBtnSelector);
+      this.accentEl(defaultBtn);
+    }
+  };
+
+  /* ---------------- LS END -------------------- */
 
   // Паша Ш. Функция для поиска елемента, по желанию можно юзать, когда это надо.
 
@@ -419,6 +439,11 @@ export default class Application {
         formRef.addEventListener('submit', this.onSearchFormSubmit);
       });
 
+      this.clearCardsContainer();
+
+      this.path = this.getTopRatedPath();
+      this.getMovies(this.path);
+
       return;
     }
 
@@ -429,8 +454,12 @@ export default class Application {
       this.renderHeaderMarkup(this.makeLibraryBtns).then(() => {
         const libraryBtns = document.querySelector(this.refs.libraryBtnsSelector);
 
+        this.getActiveLibraryBtn();
+
         libraryBtns.addEventListener('click', this.onLibraryBtnsClick);
       });
+
+      this.clearCardsContainer();
 
       this.refs.form.removeEventListener('submit', this.onSearchFormSubmit);
       return;
@@ -449,16 +478,20 @@ export default class Application {
     const watchedBtn = document.querySelector(this.refs.watchedBtnSelector);
 
     if (e.target === queueBtn) {
+      this.loadBtnStatus(e.target);
+
       this.accentEl(e.target);
       this.clearAccent(watchedBtn);
 
-      this.renderMyLibraryMovies('Queue');
+      this.renderMyLibraryMovies(e.target.dataset.key);
     }
     if (e.target === watchedBtn) {
+      this.loadBtnStatus(e.target);
+
       this.accentEl(e.target);
 
       this.clearAccent(queueBtn);
-      this.renderMyLibraryMovies('Watched');
+      this.renderMyLibraryMovies(e.target.dataset.key);
     }
   };
 }
