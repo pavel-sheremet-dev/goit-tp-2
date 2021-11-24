@@ -1,0 +1,52 @@
+
+ .js-devs-modal {
+     
+    position: fixed;
+    z-index: -1;
+    // pointer-events: none;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow-y: scroll;
+    opacity: 0;
+    transition: opacity $duration $cubic-bezier;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background: $loader-backdrop;
+}
+
+.js-open-modal{
+opacity: 1;
+z-index: 999;
+
+}
+
+.modal_overflow{
+    margin-top: 50px;
+    width: 1500px;
+    height: 800px;
+   background-color: white;
+ 
+}
+.modal__close-btn{
+    width: 50px;
+    height: 50px;
+    fill: black;
+    // background-color: white;
+    padding: 0;
+    margin: 0;
+    &:hover{
+        fill: red;
+    }
+}
+
+.devs-modal__button{
+    padding: 0;
+    margin: 0;
+    border: none;
+ position: absolute;
+ right: 6%;
+ margin-top: 5px;
+}
