@@ -27,5 +27,8 @@ export default () => {
     formSelector: '#search-form',
     libraryBtnsSelector: '.js-library-btns',
     notificationElSelector: '.js-notification',
+    jsDevsModal: document.querySelector('.js-devs-modal'),
+    footerDevsLink: document.querySelector('.footer__devs-link'),
+    clossModal: document.querySelector('.devs-modal__button'),
   };
 };

@@ -1,21 +1,50 @@
 .backdrop {
+  visibility: visible;
   position: fixed;
   z-index: 999;
-  top: 0;
-  left: 0;
   width: 100vw;
-  height: 100vh;
-  overflow-y: scroll;
+//   height: 100vh;
+  top: 20px;
+  bottom: 20px;
+  left: 50%;
+  margin-right: -50%;
+  transform: translateX(-50%);
+  
   opacity: 1;
-  transition: opacity $duration $cubic-bezier;
+//   transition: opacity $duration $cubic-bezier;
+transition: visibility 0s 0.25s, opacity 0.25s;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  background: $loader-backdrop;
+  background: #FFFFFF;
   &.is-hidden {
+    visibility: hidden;
     opacity: 0;
     pointer-events: none;
-    transition: opacity $duration $cubic-bezier, transform $duration $cubic-bezier;
+    // transition: opacity $duration $cubic-bezier, transform $duration $cubic-bezier;
+    transition: visibility 0s 0s, opacity 0.25s;
+  }
+  @media screen and (max-width: 767px) {
+    // max-height: 958px;
+    max-width: 280px;
+    overflow-y: scroll;
+    padding: 48px 20px 41px;
+  }
+  @media screen and (min-width: 768px) {
+    max-width: 618px;
+    max-height: 562px;
+    padding: 40px 30px;
+    bottom: 50px;
+    top: 100px;
+    box-sizing: content-box;
+  }
+  @media screen and (min-width: 1024px) {
+    max-height: 568px;
+    max-width: 882px;
+    top: 100px;
+    bottom: 50px;
+    padding: 50px 30px ;
+    box-sizing: content-box;
   }
 }
 .modal__backdrop {
@@ -29,17 +58,14 @@
   transform: translate(-50%, -50%) scale(1);
   background-color: $secondary-text-color;
   border-radius: 4px;
+  
   @media screen and (min-width: 768px) {
     max-width: 618px;
     max-height: 562px;
     padding: 28px;
   }
-  @media screen and (min-width: 1024px) {
-    max-height: 568px;
-    max-width: 882px;
-
-    padding: 30px;
-  }
+  
+  
   .backdrop.is-hidden & {
     transform: translate(-50%, -50%) scale(0);
     @media screen and (max-width: 768px) {
@@ -175,10 +201,19 @@
 
 .card__btn-list {
   display: flex;
+//   @media screen and (min-width: 768px){
+//     position: fixed;
+//     bottom: 40px;
+//     left: 0;
+//   }
+ 
 }
 
 .card__btn-item:not(:last-child) {
   margin-right: 15px;
+}
+.card__btn-item {
+    margin-top: 20px;
 }
 
 .card-modal__button {
