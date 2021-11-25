@@ -18,12 +18,8 @@ export default class Application {
     refs,
     CSS,
     spriteUrl,
-     brokenImgUrl,
+    brokenImgUrl,
   }) {
-
-  
-  
-
     this.makeMoviesCards = makeMoviesCards;
     this.makeMovieDetails = makeMovieDetails;
     this.makeHeaderForm = makeHeaderForm;
@@ -52,8 +48,8 @@ export default class Application {
   loadListeners = () => {
     this.refs.navigation.addEventListener('click', this.onNavigationListClick);
     this.refs.form.addEventListener('submit', this.onSearchFormSubmit);
-    this.refs.footerDevsLink.addEventListener('click', this.modalOverflow)
-    this.refs.clossModal.addEventListener('click', this.closeModalWindow)
+    this.refs.footerDevsLink.addEventListener('click', this.modalOverflow);
+    this.refs.clossModal.addEventListener('click', this.closeModalWindow);
     // this.refs.myLibraryBtn.addEventListener('click', this.renderMyLibrary);
     //Artem modal-window
     this.refs.cardsContainer.addEventListener('click', this.onCardsClick);
@@ -66,7 +62,6 @@ export default class Application {
     this.loadListeners();
     this.getGenres();
     this.onLoadPage();
-    
   };
 
   // Ниже можно добавлять методы, которые касаются работы с API
@@ -142,12 +137,10 @@ export default class Application {
       api_key: this.#API_KEY,
       language: 'en-US',
     });
-    
+
     return fetch(`${this.#BASE_API_URL}/${this.#CATEGORIES.genre}?${urlParams}`)
       .then(res => {
-       
         if (res.ok) {
-         
           return res.json();
         }
         return Promise.reject({
@@ -166,7 +159,6 @@ export default class Application {
   getGenres = () => {
     this.fetchGenres().then(({ genres }) => {
       this.genres = genres;
-    
     });
   };
 
@@ -180,7 +172,7 @@ export default class Application {
 
   //Artem: fetch for details once films
 
-  fetchFilmByDetails = async (id) => {
+  fetchFilmByDetails = async id => {
     const res = await fetch(
       `${this.#BASE_API_URL}/movie/${id}?api_key=${this.#API_KEY}&append_to_response=videos`,
     );
@@ -516,8 +508,6 @@ export default class Application {
   onSearchFormSubmit = e => {
     e.preventDefault();
     console.log(e.target);
-   
- 
   };
 
   // Юра
@@ -553,7 +543,7 @@ export default class Application {
     if (forShowTampl) {
       return;
     }
-    
+
     this.openShowModal();
 
     this.fetchFilmByDetails(id)
@@ -588,23 +578,10 @@ export default class Application {
     }
   };
 
-  
-
-modalOverflow = () => {
-this.refs.jsDevsModal.classList.add('js-open-modal')
-
-
+  modalOverflow = () => {
+    this.refs.jsDevsModal.classList.add('js-open-modal');
+  };
+  closeModalWindow = () => {
+    this.refs.jsDevsModal.classList.remove('js-open-modal');
+  };
 }
-closeModalWindow = () =>{
-  this.refs.jsDevsModal.classList.remove('js-open-modal')
-
-}
-
-
-
-
-}
-
-
-
-
