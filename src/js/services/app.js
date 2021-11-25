@@ -8,6 +8,7 @@ export default class Application {
   #CATEGORIES = {
     topRated: 'movie/top_rated',
     genre: 'genre/movie/list',
+    query: 'search/movie',
   };
 
   constructor({
@@ -18,12 +19,8 @@ export default class Application {
     refs,
     CSS,
     spriteUrl,
-     brokenImgUrl,
+    brokenImgUrl,
   }) {
-
-  
-  
-
     this.makeMoviesCards = makeMoviesCards;
     this.makeMovieDetails = makeMovieDetails;
     this.makeHeaderForm = makeHeaderForm;
@@ -39,6 +36,9 @@ export default class Application {
     this._urlParams = '';
     this.genres = [];
     this._not_found_img = brokenImgUrl;
+    this.notificationEl = null;
+    this.timeoutId = null;
+    this.loadMoreObserver = null;
   }
   // пример использование функции по работе с жанрами и годом в запросе топ фильмов
   // fetch(".......").then(res=>res.json()).then(films => {
@@ -52,8 +52,9 @@ export default class Application {
   loadListeners = () => {
     this.refs.navigation.addEventListener('click', this.onNavigationListClick);
     this.refs.form.addEventListener('submit', this.onSearchFormSubmit);
-    this.refs.footerDevsLink.addEventListener('click', this.modalOverflow)
-    this.refs.clossModal.addEventListener('click', this.closeModalWindow)
+    this.getLoadMoreObserver();
+    this.refs.footerDevsLink.addEventListener('click', this.modalOverflow);
+    this.refs.clossModal.addEventListener('click', this.closeModalWindow);
     // this.refs.myLibraryBtn.addEventListener('click', this.renderMyLibrary);
     //Artem modal-window
     this.refs.cardsContainer.addEventListener('click', this.onCardsClick);
@@ -66,7 +67,6 @@ export default class Application {
     this.loadListeners();
     this.getGenres();
     this.onLoadPage();
-    
   };
 
   // Ниже можно добавлять методы, которые касаются работы с API
@@ -104,10 +104,9 @@ export default class Application {
 
   getQueryPath = searchQuery => {
     this.urlParams = new URLSearchParams({
-      query: searchQuery,
       include_adult: false,
     });
-    return `${this.#CATEGORIES.query}?${this.urlParams}&`;
+    return `${this.#CATEGORIES.query}?${this.urlParams}&query=${searchQuery}&`;
   };
 
   fetchMovies = path => {
@@ -142,12 +141,10 @@ export default class Application {
       api_key: this.#API_KEY,
       language: 'en-US',
     });
-    
+
     return fetch(`${this.#BASE_API_URL}/${this.#CATEGORIES.genre}?${urlParams}`)
       .then(res => {
-       
         if (res.ok) {
-         
           return res.json();
         }
         return Promise.reject({
@@ -166,7 +163,6 @@ export default class Application {
   getGenres = () => {
     this.fetchGenres().then(({ genres }) => {
       this.genres = genres;
-    
     });
   };
 
@@ -180,7 +176,7 @@ export default class Application {
 
   //Artem: fetch for details once films
 
-  fetchFilmByDetails = async (id) => {
+  fetchFilmByDetails = async id => {
     const res = await fetch(
       `${this.#BASE_API_URL}/movie/${id}?api_key=${this.#API_KEY}&append_to_response=videos`,
     );
@@ -380,17 +376,15 @@ export default class Application {
   };
 
   getActiveLibraryBtn = () => {
-    try {
-      const currentKey = localStorage.getItem('button');
-      const currentKeyBtn = document.querySelector(`[data-key="${currentKey}"]`);
-      this.accentEl(currentKeyBtn);
-      return currentKeyBtn;
-    } catch (error) {
-      console.log(error);
+    const currentKey = localStorage.getItem('button');
+    if (!currentKey) {
       const defaultBtn = document.querySelector(this.refs.queueBtnSelector);
       this.accentEl(defaultBtn);
       return defaultBtn;
     }
+    const currentKeyBtn = document.querySelector(`[data-key="${currentKey}"]`);
+    this.accentEl(currentKeyBtn);
+    return currentKeyBtn;
   };
 
   /* ---------------- LS END -------------------- */
@@ -406,13 +400,14 @@ export default class Application {
       .then(data => {
         const results = data.results;
         if (!results.length) {
-          showAlert(query, ALERTS.NOT_FOUND);
+          this.showNotification(this.notificationEl, ALERTS.NOT_FOUND);
           return;
         }
 
-        this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
-        this.incrementPage();
         this.total_pages = data.total_pages;
+
+        this.observeLoadMoreAnchor();
+        this.incrementPage();
 
         const normalizedResults = this.getNormalizeMovies(results, this.genres);
         const moviesCardsMarkup = this.makeMoviesCards(normalizedResults);
@@ -427,20 +422,28 @@ export default class Application {
   onLoadPage = () => {
     this.resetPage();
 
+    this.notificationEl = this.refs.notificationEl;
     this.path = this.getTopRatedPath();
 
-    this.getMovies(this.path).then(this.observeEndList).catch(showError);
+    this.getMovies(this.path).catch(showError);
   };
 
-  observeEndList = () => {
+  /* ----------- OBSERVER INFINITY SCROLL ------------ */
+
+  getLoadMoreObserver = () => {
     const options = {
       rootMargin: '50px',
       threshold: 0.5,
     };
 
-    const observer = new IntersectionObserver(this.onMoviesEnd, options);
+    this.loadMoreObserver = new IntersectionObserver(this.onMoviesEnd, options);
 
-    observer.observe(this.refs.loadMoreAnchor);
+    this.loadMoreObserver.observe(this.refs.loadMoreAnchor);
+  };
+
+  observeLoadMoreAnchor = () => {
+    this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
+    this.loadMoreObserver.observe(this.refs.loadMoreAnchor);
   };
 
   onMoviesEnd = ([entry], observer) => {
@@ -448,14 +451,17 @@ export default class Application {
       return;
     }
 
-    if (this.total_pages + 1 === this.page) {
+    if (this.page === this.total_pages + 1) {
       observer.disconnect();
       this.refs.loadMoreAnchor.classList.add(this.CSS.IS_HIDDEN);
       return;
     }
-
+    observer.observe(this.refs.loadMoreAnchor);
+    this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
     this.getMovies(this.path); // загрузка новой порции
   };
+
+  /* ----------- END OBSERVER INFINITY SCROLL ------------ */
 
   // Паша Шеремет. Обработчик нажатия на кнопки HOME и Library
   /*
@@ -481,6 +487,7 @@ export default class Application {
       this.showHomepageBackground();
       this.renderHeaderMarkup(this.makeHeaderForm, this.spriteUrl).then(() => {
         const formRef = document.querySelector(this.refs.formSelector);
+        this.notificationEl = document.querySelector(this.refs.notificationElSelector);
 
         formRef.addEventListener('submit', this.onSearchFormSubmit);
       });
@@ -515,9 +522,35 @@ export default class Application {
 
   onSearchFormSubmit = e => {
     e.preventDefault();
-    console.log(e.target);
-   
- 
+    const form = e.currentTarget;
+    const query = form.elements.query.value;
+    const normalizedQuery = query.toLowerCase().trim().split(' ').join('+');
+
+    if (!query) {
+      this.showNotification(this.notificationEl, ALERTS.EMPTY);
+      return;
+    }
+
+    this.clearCardsContainer();
+
+    this.path = this.getQueryPath(normalizedQuery);
+
+    this.getMovies(this.path).catch(showError);
+  };
+
+  showNotification = (el, message) => {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
+
+    el.classList.remove(this.CSS.IS_HIDDEN);
+    el.textContent = message;
+    this.timeoutId = setTimeout(() => {
+      el.classList.add(this.CSS.IS_HIDDEN);
+      setTimeout(() => {
+        el.textContent = '';
+      }, 500);
+    }, 2500);
   };
 
   // Юра
@@ -553,7 +586,7 @@ export default class Application {
     if (forShowTampl) {
       return;
     }
-    
+
     this.openShowModal();
 
     this.fetchFilmByDetails(id)
@@ -588,23 +621,10 @@ export default class Application {
     }
   };
 
-  
-
-modalOverflow = () => {
-this.refs.jsDevsModal.classList.add('js-open-modal')
-
-
+  modalOverflow = () => {
+    this.refs.jsDevsModal.classList.add('js-open-modal');
+  };
+  closeModalWindow = () => {
+    this.refs.jsDevsModal.classList.remove('js-open-modal');
+  };
 }
-closeModalWindow = () =>{
-  this.refs.jsDevsModal.classList.remove('js-open-modal')
-
-}
-
-
-
-
-}
-
-
-
-
