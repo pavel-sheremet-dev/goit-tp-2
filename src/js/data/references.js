@@ -10,6 +10,7 @@ export default () => {
     headerBottomContainer: document.querySelector('.js-header__bottom'),
     form: document.querySelector('#search-form'),
     input: document.querySelector('[name="query"]'),
+    notificationEl: document.querySelector('.js-notification'),
     cardsContainer: document.querySelector('.js-cards__list'),
     loadMoreBtn: document.querySelector('.js-loadmore-btn'),
     loadMoreAnchor: document.querySelector('.js-loadmore-anchor'),
@@ -25,5 +26,6 @@ export default () => {
     queueBtnSelector: '.js-queue-btn',
     formSelector: '#search-form',
     libraryBtnsSelector: '.js-library-btns',
+    notificationElSelector: '.js-notification',
   };
 };

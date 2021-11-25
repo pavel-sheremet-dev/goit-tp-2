@@ -35,6 +35,9 @@ export default class Application {
     this._urlParams = '';
     this.genres = [];
     this._not_found_img = brokenImgUrl;
+    this.notificationEl = null;
+    this.timeoutId = null;
+    this.loadMoreObserver = null;
   }
   // пример использование функции по работе с жанрами и годом в запросе топ фильмов
   // fetch(".......").then(res=>res.json()).then(films => {
@@ -48,6 +51,7 @@ export default class Application {
   loadListeners = () => {
     this.refs.navigation.addEventListener('click', this.onNavigationListClick);
     this.refs.form.addEventListener('submit', this.onSearchFormSubmit);
+    this.getLoadMoreObserver();
     // this.refs.myLibraryBtn.addEventListener('click', this.renderMyLibrary);
     // Сюда добавляем слушатели событий, которые должны подключиться при первой загрузке страницы (например клики на кнопки HOME и My Library)
   };
@@ -94,10 +98,9 @@ export default class Application {
 
   getQueryPath = searchQuery => {
     this.urlParams = new URLSearchParams({
-      query: searchQuery,
       include_adult: false,
     });
-    return `${this.#CATEGORIES.query}?${this.urlParams}&`;
+    return `${this.#CATEGORIES.query}?${this.urlParams}&query=${searchQuery}&`;
   };
 
   fetchMovies = path => {
@@ -368,13 +371,14 @@ export default class Application {
       .then(data => {
         const results = data.results;
         if (!results.length) {
-          showAlert(query, ALERTS.NOT_FOUND);
+          this.showNotification(this.notificationEl, ALERTS.NOT_FOUND);
           return;
         }
 
-        this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
-        this.incrementPage();
         this.total_pages = data.total_pages;
+
+        this.observeLoadMoreAnchor();
+        this.incrementPage();
 
         const normalizedResults = this.getNormalizeMovies(results, this.genres);
         const moviesCardsMarkup = this.makeMoviesCards(normalizedResults);
@@ -389,20 +393,28 @@ export default class Application {
   onLoadPage = () => {
     this.resetPage();
 
+    this.notificationEl = this.refs.notificationEl;
     this.path = this.getTopRatedPath();
 
-    this.getMovies(this.path).then(this.observeEndList).catch(showError);
+    this.getMovies(this.path).catch(showError);
   };
 
-  observeEndList = () => {
+  /* ----------- OBSERVER INFINITY SCROLL ------------ */
+
+  getLoadMoreObserver = () => {
     const options = {
       rootMargin: '50px',
       threshold: 0.5,
     };
 
-    const observer = new IntersectionObserver(this.onMoviesEnd, options);
+    this.loadMoreObserver = new IntersectionObserver(this.onMoviesEnd, options);
 
-    observer.observe(this.refs.loadMoreAnchor);
+    this.loadMoreObserver.observe(this.refs.loadMoreAnchor);
+  };
+
+  observeLoadMoreAnchor = () => {
+    this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
+    this.loadMoreObserver.observe(this.refs.loadMoreAnchor);
   };
 
   onMoviesEnd = ([entry], observer) => {
@@ -410,14 +422,17 @@ export default class Application {
       return;
     }
 
-    if (this.total_pages + 1 === this.page) {
+    if (this.page === this.total_pages + 1) {
       observer.disconnect();
       this.refs.loadMoreAnchor.classList.add(this.CSS.IS_HIDDEN);
       return;
     }
-
+    observer.observe(this.refs.loadMoreAnchor);
+    this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
     this.getMovies(this.path); // загрузка новой порции
   };
+
+  /* ----------- END OBSERVER INFINITY SCROLL ------------ */
 
   // Паша Шеремет. Обработчик нажатия на кнопки HOME и Library
   /*
@@ -443,6 +458,7 @@ export default class Application {
       this.showHomepageBackground();
       this.renderHeaderMarkup(this.makeHeaderForm, this.spriteUrl).then(() => {
         const formRef = document.querySelector(this.refs.formSelector);
+        this.notificationEl = document.querySelector(this.refs.notificationElSelector);
 
         formRef.addEventListener('submit', this.onSearchFormSubmit);
       });
@@ -481,13 +497,31 @@ export default class Application {
     const query = form.elements.query.value;
     const normalizedQuery = query.toLowerCase().trim().split(' ').join('+');
 
+    if (!query) {
+      this.showNotification(this.notificationEl, ALERTS.EMPTY);
+      return;
+    }
+
     this.clearCardsContainer();
 
     this.path = this.getQueryPath(normalizedQuery);
 
-    console.log(this.path);
+    this.getMovies(this.path).catch(showError);
+  };
 
-    this.getMovies(this.path).then(this.observeEndList).catch(showError);
+  showNotification = (el, message) => {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
+
+    el.classList.remove(this.CSS.IS_HIDDEN);
+    el.textContent = message;
+    this.timeoutId = setTimeout(() => {
+      el.classList.add(this.CSS.IS_HIDDEN);
+      setTimeout(() => {
+        el.textContent = '';
+      }, 500);
+    }, 2500);
   };
 
   // Юра
