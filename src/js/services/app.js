@@ -1,6 +1,5 @@
 import { showAlert, showError } from '../vendors/alerts';
 import ALERTS from '../data/alertsMsgs';
-import artemTamplate from '..//../templating/movieDetails';
 
 export default class Application {
   #API_KEY = '6759d249684e99a49309af19f6af0ff2';
@@ -67,6 +66,7 @@ export default class Application {
     this.loadListeners();
     this.getGenres();
     this.onLoadPage();
+    this.getNotFoundPicture(this._not_found_img);
   };
 
   // Ниже можно добавлять методы, которые касаются работы с API
@@ -239,6 +239,7 @@ export default class Application {
     genres: metod,
     img: this.createImage(film),
     vote_average: this.pad(film.vote_average),
+    currentPage: this.page,
   });
   // Соединение информации о фильме для страницы home
   getNormalizeMovies(films, allGenres) {
@@ -311,9 +312,23 @@ export default class Application {
   */
 
   clearCardsContainer = () => {
+    this.refs.cardsContainer.classList.add(this.CSS.IS_HIDDEN);
+    const promise = new Promise(res => {
+      setTimeout(() => {
+        this.refs.cardsContainer.innerHTML = '';
+        res(true);
+      }, 250);
+    });
+    return promise;
+  };
+
+  showCardsContainer = () => {
+    this.refs.cardsContainer.classList.remove(this.CSS.IS_HIDDEN);
+  };
+
+  unObserveLoadMoreAnchor = () => {
+    this.loadMoreObserver.disconnect();
     this.refs.loadMoreAnchor.classList.add(this.CSS.IS_HIDDEN);
-    this.refs.cardsContainer.innerHTML = '';
-    this.resetPage();
   };
 
   renderHeaderMarkup = (markupTemplate, data = '') => {
@@ -330,6 +345,8 @@ export default class Application {
 
   // renderMyLibrary = () => {
   //   this.clearCardsContainer();
+  //     this.resetPage();
+  //   this.unObserveLoadMoreAnchor();
 
   //   this.refs.cardsTitle.classList.add(this.CSS.IS_HIDDEN);
   //   this.renderMyLibraryMovies('Queue');
@@ -338,17 +355,13 @@ export default class Application {
   // Юра
 
   renderMyLibraryMovies = key => {
-    this.clearCardsContainer();
-
     const localStorageInfo = this.loadInfoFromLocalStorage(key);
 
     console.log(localStorageInfo);
 
     if (localStorageInfo == null || localStorageInfo.length == 0) {
-      this.refs.cardsContainer.insertAdjacentHTML(
-        'beforeend',
-        `<p class="my-library__description">В даному розділі фільми відсутні!</p>`,
-      );
+      this.refs.cardsContainer.innerHTML = `<p class="my-library__description">В даному розділі фільми відсутні!</p>`;
+
       return;
     } else {
       this.refs.cardsContainer.insertAdjacentHTML(
@@ -395,24 +408,90 @@ export default class Application {
     return document.querySelector(selector);
   };
 
+  getNotFoundPicture = broken_img_url => {
+    const img = new Image();
+    img.src = broken_img_url;
+    img.dataset.src = broken_img_url;
+    img.alt = 'Not found image';
+    img.classList.add(this.CSS.IMG, this.CSS.NOT_FOUND);
+    return img;
+  };
+
+  showImages = page => {
+    const images = document.querySelectorAll(`[data-page="${page}"]`);
+
+    console.log(images);
+
+    images.forEach(image => {
+      const liRef = image.closest('li');
+
+      this.showImage(image, liRef);
+
+      image.onerror = () => {
+        const notFoundImage = this.getNotFoundPicture(this._not_found_img);
+        image.replaceWith(notFoundImage);
+        setTimeout(() => {
+          liRef.classList.remove(this.CSS.ACTIVE);
+        }, 3000);
+      };
+    });
+  };
+
+  showImage = (image, liRef) => {
+    image.addEventListener(
+      'load',
+      () => {
+        image.classList.remove(this.CSS.IS_HIDDEN);
+        liRef.classList.remove(this.CSS.ACTIVE);
+      },
+      { once: true },
+    );
+  };
+
   getMovies = path => {
-    return this.fetchMovies(path)
+    return Promise.all([this.fetchMovies(path), this.clearCardsContainer()])
+      .then(res => {
+        const data = res[0];
+        const results = data.results;
+        if (!results.length) {
+          this.showNotification(this.notificationEl, ALERTS.NOT_FOUND);
+          return;
+        }
+        const normalizedResults = this.getNormalizeMovies(results, this.genres);
+
+        this.total_pages = data.total_pages;
+
+        this.observeLoadMoreAnchor();
+
+        console.log(normalizedResults);
+        const moviesCardsMarkup = this.makeMoviesCards(normalizedResults);
+
+        this.refs.cardsContainer.insertAdjacentHTML('beforeend', moviesCardsMarkup);
+        this.showCardsContainer();
+        this.showImages(this.page);
+
+        this.incrementPage();
+      })
+      .catch(showError);
+  };
+
+  getMoreMovies = path => {
+    this.fetchMovies(path)
       .then(data => {
         const results = data.results;
         if (!results.length) {
           this.showNotification(this.notificationEl, ALERTS.NOT_FOUND);
           return;
         }
-
+        const normalizedResults = this.getNormalizeMovies(results, this.genres);
         this.total_pages = data.total_pages;
 
-        this.observeLoadMoreAnchor();
-        this.incrementPage();
-
-        const normalizedResults = this.getNormalizeMovies(results, this.genres);
         const moviesCardsMarkup = this.makeMoviesCards(normalizedResults);
 
         this.refs.cardsContainer.insertAdjacentHTML('beforeend', moviesCardsMarkup);
+        this.showImages(this.page);
+
+        this.incrementPage();
       })
       .catch(showError);
   };
@@ -458,7 +537,8 @@ export default class Application {
     }
     observer.observe(this.refs.loadMoreAnchor);
     this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
-    this.getMovies(this.path); // загрузка новой порции
+
+    this.getMoreMovies(this.path);
   };
 
   /* ----------- END OBSERVER INFINITY SCROLL ------------ */
@@ -492,7 +572,9 @@ export default class Application {
         formRef.addEventListener('submit', this.onSearchFormSubmit);
       });
 
-      this.clearCardsContainer();
+      // this.clearCardsContainer();
+      this.resetPage();
+      this.unObserveLoadMoreAnchor();
 
       this.path = this.getTopRatedPath();
       this.getMovies(this.path);
@@ -504,16 +586,25 @@ export default class Application {
       this.accentEl(e.target);
       this.clearAccent(this.refs.homeBtn);
       this.showLibraryBackground();
-      this.renderHeaderMarkup(this.makeLibraryBtns).then(() => {
-        const libraryBtns = document.querySelector(this.refs.libraryBtnsSelector);
 
-        const activeLibraryBtn = this.getActiveLibraryBtn();
-        this.renderMyLibraryMovies(activeLibraryBtn.dataset.key);
+      this.resetPage();
+      this.unObserveLoadMoreAnchor();
 
-        libraryBtns.addEventListener('click', this.onLibraryBtnsClick);
-      });
+      Promise.all([this.renderHeaderMarkup(this.makeLibraryBtns), this.clearCardsContainer()]).then(
+        () => {
+          const libraryBtns = document.querySelector(this.refs.libraryBtnsSelector);
 
-      this.clearCardsContainer();
+          const activeLibraryBtn = this.getActiveLibraryBtn();
+          this.renderMyLibraryMovies(activeLibraryBtn.dataset.key);
+          this.showCardsContainer();
+
+          libraryBtns.addEventListener('click', this.onLibraryBtnsClick);
+        },
+      );
+
+      // this.clearCardsContainer();
+      // this.resetPage();
+      // this.unObserveLoadMoreAnchor();
 
       this.refs.form.removeEventListener('submit', this.onSearchFormSubmit);
       return;
@@ -531,7 +622,9 @@ export default class Application {
       return;
     }
 
-    this.clearCardsContainer();
+    // this.clearCardsContainer();
+    this.resetPage();
+    this.unObserveLoadMoreAnchor();
 
     this.path = this.getQueryPath(normalizedQuery);
 
@@ -576,11 +669,9 @@ export default class Application {
       this.renderMyLibraryMovies(e.target.dataset.key);
     }
   };
-
   // Artem: function for listener function
   onCardsClick = e => {
     e.preventDefault();
-    // console.log(e.target.closest('li').dataset.id);
     const id = e.target.closest('li').dataset.id;
     const forShowTampl = e.target.classList.contains('cards__list');
     if (forShowTampl) {
@@ -595,9 +686,10 @@ export default class Application {
         console.log(error);
       });
   };
+
   // Artem: methods open-close modal close
   onceFilmRender = data => {
-    const markup = artemTamplate(data);
+    const markup = this.makeMovieDetails(data);
     this.refs.cardModal.innerHTML = markup;
 
     const btnCloseModal = document.querySelector('.card-modal__button');

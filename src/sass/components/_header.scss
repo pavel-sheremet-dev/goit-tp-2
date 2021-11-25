@@ -238,7 +238,7 @@
   text-transform: uppercase;
   background-color: transparent;
   color: $secondary-text-color;
-  transition: border-color 250ms linear;
+  transition: border-color 250ms linear, background-color 250ms linear;
 }
 
 .my-library__btn:hover,

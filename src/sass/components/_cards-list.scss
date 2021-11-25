@@ -5,6 +5,12 @@
 
 .cards__list {
   display: block;
+  opacity: 1;
+  transition: opacity 250ms linear;
+}
+
+.cards__list.is-hidden {
+  opacity: 0;
 }
 
 .cards__item {
@@ -20,18 +26,32 @@
 }
 
 .cards__link {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-.cards__img {
+.cards__img-container {
+  background-color: rgba(0, 0, 0, 1);
   width: 100%;
   height: calc((100vw - 40px) * 1.43);
   margin-bottom: 10px;
-  object-fit: cover;
   border-radius: 5px;
-  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.cards__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 1;
+  transition: opacity 250ms linear;
+  border-radius: 5px;
+}
+
+.cards__img.is-hidden {
+  opacity: 0;
 }
 
 .cards__title {
@@ -73,7 +93,7 @@
     width: 350px;
   }
 
-  .cards__img {
+  .cards__img-container {
     width: 350px;
     height: calc(350px * 1.43);
   }
@@ -100,7 +120,7 @@
     margin-bottom: 0;
   }
 
-  .cards__img {
+  .cards__img-container {
     width: 100%;
     height: calc(295px * 1.49);
   }
@@ -116,7 +136,7 @@
     width: 273px;
   }
 
-  .cards__img {
+  .cards__img-container {
     width: 100%;
     height: calc(273px * 1.61);
   }
@@ -138,33 +158,42 @@
 // а на родителя повесить position: relative;
 // через js добавляется/удаляется класс active на этот елемент.
 
-// .cards__loader {
-//   z-index: -1;
-//   position: absolute;
-//   top: 50%;
-//   left: 50%;
-//   transform: translate(-50%, -50%);
-//   transform-origin: top left;
-//   width: 80px;
-//   height: 80px;
-//   border-radius: 50%;
-//   border: 2px solid transparent;
-//   border-top-color: $secondary-text-color;
-//   opacity: 0;
-//   transition: opacity 250ms linear;
-// }
+.card__loader {
+  z-index: -1;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transform-origin: top left;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: $main-brand-color;
+  opacity: 0;
+}
 
-// .card__loader.active {
-//   z-index: 1;
-//   animation: card-loader 1s ease infinite;
-//   opacity: 1;
-// }
+.cards__item.active .card__loader {
+  z-index: 1;
+  animation: card-loader 1s ease infinite;
+  opacity: 1;
+}
 
-// @keyframes card-loader {
-//   from {
-//     transform: rotate(0turn) translate(-50%, -50%);
-//   }
-//   to {
-//     transform: rotate(1turn) translate(-50%, -50%);
-//   }
-// }
+.cards__item.active .not-found {
+  opacity: 0;
+  transition: opacity 250ms linear;
+}
+
+.cards__item .not-found {
+  opacity: 1;
+  transition: opacity 250ms linear;
+}
+
+@keyframes card-loader {
+  from {
+    transform: rotate(0turn) translate(-50%, -50%);
+  }
+  to {
+    transform: rotate(1turn) translate(-50%, -50%);
+  }
+}
