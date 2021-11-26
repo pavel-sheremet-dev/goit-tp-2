@@ -48,4 +48,38 @@ animation-duration: 1s;
 .footer__copyrigth{
     display: flex;
     align-items: center;
+    font-size: 16px;
+}
+
+.mobile-version{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+    color: 545454;
+}
+@media screen and (max-width: 768px){
+    .footer__copyrigth{
+        display: block;
+        text-align: center;
+        font-size: 12px;
+    }
+    .footer__container{
+        font-size: 12px;
+        display: block;
+      
+    }
+    .mobile-version{
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+    }
+    .heart{
+        width: 10px;
+        height: 10px;
+    }
+
+
 }
