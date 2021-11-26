@@ -39,6 +39,12 @@ export default class Application {
     this.notificationEl = null;
     this.timeoutId = null;
     this.loadMoreObserver = null;
+    this.listMovietoWatched = [];
+    this.listMovietoQueue = [];
+    this.key = {
+      watched: 'watched',
+      queue: 'queue',
+    };
   }
   // пример использование функции по работе с жанрами и годом в запросе топ фильмов
   // fetch(".......").then(res=>res.json()).then(films => {
@@ -336,7 +342,6 @@ export default class Application {
   // };
 
   // Юра
-
   renderMyLibraryMovies = key => {
     this.clearCardsContainer();
 
@@ -508,6 +513,7 @@ export default class Application {
         const libraryBtns = document.querySelector(this.refs.libraryBtnsSelector);
 
         const activeLibraryBtn = this.getActiveLibraryBtn();
+        console.log(activeLibraryBtn.dataset.key);
         this.renderMyLibraryMovies(activeLibraryBtn.dataset.key);
 
         libraryBtns.addEventListener('click', this.onLibraryBtnsClick);
@@ -599,7 +605,9 @@ export default class Application {
   onceFilmRender = data => {
     const markup = artemTamplate(data);
     this.refs.cardModal.innerHTML = markup;
-
+    // Добавляет слушателя на кнопки "addToWatched", "addToQueue" при открытии модального окна
+    this.addEventListenerOnBtnWatchedQueue();
+    //
     const btnCloseModal = document.querySelector('.card-modal__button');
     btnCloseModal.addEventListener('click', this.closeShowModal);
     return;
@@ -627,4 +635,74 @@ export default class Application {
   closeModalWindow = () => {
     this.refs.jsDevsModal.classList.remove('js-open-modal');
   };
+  // ======================Vadym =================================
+  addEventListenerOnBtnWatchedQueue = () => {
+    const cartModalBtnList = document.querySelector('.card__btn-list');
+    cartModalBtnList.addEventListener('click', this.sortMovieListByUser);
+  };
+
+  sortMovieListByUser = e => {
+    const movieID = e.currentTarget.dataset.id;
+
+    if (e.target.dataset.action === 'add-to-watched') {
+      this.addMovieToWatched(movieID);
+    }
+    if (e.target.dataset.action === 'add-to-queue') {
+      this.addMovieToQueue(movieID);
+    }
+  };
+
+  addMovieToWatched = movieId => {
+    const dataJSONWatched = this.loadInfoFromLocalStorage(this.key.watched);
+
+    let dataJSONWatchedMap = [];
+
+    if (dataJSONWatched !== null) {
+      dataJSONWatchedMap = dataJSONWatched.map(r => r.id);
+    }
+
+    if (dataJSONWatchedMap.includes(Number(movieId))) {
+      showAlert('Увага', 'Цей фільм вже знаходиться у Вашій бібліотеці');
+      return;
+    }
+
+    this.fetchFilmByDetails(movieId).then(data => {
+      const normalizedResults = this.normalizedDataToLocaleStorage(data);
+      showAlert('Вітаємо', 'Цей фільм був успішно додано до Вашої бібліотеки у розділ "Watched"');
+      this.listMovietoWatched.push(normalizedResults);
+      localStorage.setItem(this.key.watched, JSON.stringify(this.listMovietoWatched));
+    });
+  };
+
+  addMovieToQueue = movieId => {
+    const dataJSONQueue = this.loadInfoFromLocalStorage(this.key.queue);
+    let dataJSONQueueMap = [];
+
+    if (dataJSONQueue !== null) {
+      dataJSONQueueMap = dataJSONQueue.map(r => r.id);
+    }
+
+    if (dataJSONQueueMap.includes(Number(movieId))) {
+      showAlert('Увага', 'Цей фільм вже знаходиться у Вашій бібліотеці');
+      return;
+    }
+
+    this.fetchFilmByDetails(movieId).then(data => {
+      const normalizedResults = this.normalizedDataToLocaleStorage(data);
+      showAlert('Вітаємо', 'Цей фільм був успішно додано до Вашої бібліотеки у розділ "Queue"');
+      this.listMovietoQueue.push(normalizedResults);
+      localStorage.setItem(this.key.queue, JSON.stringify(this.listMovietoQueue));
+    });
+  };
+  //==========================Нормализация перед localeStorage=======================
+  normalizedDataToLocaleStorage = obj => {
+    obj.img = this.createImage(obj);
+    obj.year = this.createYear(obj);
+    if (obj.genres.length === 3) {
+      obj.genres.splice(2, 1, { id: 7777777, name: 'Other' });
+    }
+    return obj;
+  };
+  //==========================Конец нормализации localeStorage=======================
+  // ======================Vadym =================================
 }
