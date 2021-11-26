@@ -19,6 +19,9 @@ export default class Application {
     CSS,
     spriteUrl,
     brokenImgUrl,
+    loadSpinner,
+    windowSpinner,
+    anchorSpinner,
   }) {
     this.makeMoviesCards = makeMoviesCards;
     this.makeMovieDetails = makeMovieDetails;
@@ -38,6 +41,9 @@ export default class Application {
     this.notificationEl = null;
     this.timeoutId = null;
     this.loadMoreObserver = null;
+    this.loadSpinner = loadSpinner;
+    this.windowSpinner = windowSpinner;
+    this.anchorSpinner = anchorSpinner;
   }
   // пример использование функции по работе с жанрами и годом в запросе топ фильмов
   // fetch(".......").then(res=>res.json()).then(films => {
@@ -49,6 +55,7 @@ export default class Application {
   // Методы лучше записывать как стрелочные функции, в таком случае не теряется контекст, если метод передается как коллбек-функция
 
   loadListeners = () => {
+    window.addEventListener('load', this.onLoadPage);
     this.refs.navigation.addEventListener('click', this.onNavigationListClick);
     this.refs.form.addEventListener('submit', this.onSearchFormSubmit);
     this.getLoadMoreObserver();
@@ -65,7 +72,6 @@ export default class Application {
     // Сюда добавляем все действия, которые должны произойти при загрузке стартовой страницы, например слушатели событий, отрисовка популярных фильмов.
     this.loadListeners();
     this.getGenres();
-    this.onLoadPage();
     this.getNotFoundPicture(this._not_found_img);
   };
 
@@ -313,6 +319,7 @@ export default class Application {
 
   clearCardsContainer = () => {
     this.refs.cardsContainer.classList.add(this.CSS.IS_HIDDEN);
+    this.showCardsListLoader();
     const promise = new Promise(res => {
       setTimeout(() => {
         this.refs.cardsContainer.innerHTML = '';
@@ -326,11 +333,6 @@ export default class Application {
     this.refs.cardsContainer.classList.remove(this.CSS.IS_HIDDEN);
   };
 
-  unObserveLoadMoreAnchor = () => {
-    this.loadMoreObserver.disconnect();
-    this.refs.loadMoreAnchor.classList.add(this.CSS.IS_HIDDEN);
-  };
-
   renderHeaderMarkup = (markupTemplate, data = '') => {
     return this.clearHeaderContainer()
       .then(() => {
@@ -339,6 +341,36 @@ export default class Application {
         this.showHeaderContainer();
       })
       .catch(console.log);
+  };
+
+  showCardsListLoader = () => {
+    this.refs.loaderBackdrop.classList.remove(this.CSS.IS_HIDDEN);
+    this.loadSpinner.spin(this.refs.loaderSpinner);
+  };
+
+  hideCardsListLoader = () => {
+    this.refs.loaderBackdrop.classList.add(this.CSS.IS_HIDDEN);
+    this.loadSpinner.stop();
+  };
+
+  showWindowLoader = () => {
+    this.refs.windowLoaderBackdrop.classList.remove(this.CSS.IS_HIDDEN);
+    this.windowSpinner.spin(this.refs.windowSpinner);
+  };
+
+  hideWindowLoader = () => {
+    this.refs.windowLoaderBackdrop.classList.add(this.CSS.IS_HIDDEN);
+    this.windowSpinner.stop();
+  };
+
+  showAnchorLoader = () => {
+    this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
+    this.anchorSpinner.spin(this.refs.anchorSpinner);
+  };
+
+  hideAnchorLoader = () => {
+    this.refs.loadMoreAnchor.classList.add(this.CSS.IS_HIDDEN);
+    this.anchorSpinner.stop();
   };
 
   // Юра
@@ -361,14 +393,13 @@ export default class Application {
 
     if (localStorageInfo == null || localStorageInfo.length == 0) {
       this.refs.cardsContainer.innerHTML = `<p class="my-library__description">В даному розділі фільми відсутні!</p>`;
-
-      return;
     } else {
       this.refs.cardsContainer.insertAdjacentHTML(
         'beforeend',
         this.makeMoviesCards(localStorageInfo),
       );
     }
+    this.hideCardsListLoader();
   };
 
   // Юра
@@ -463,11 +494,11 @@ export default class Application {
 
         this.observeLoadMoreAnchor();
 
-        console.log(normalizedResults);
         const moviesCardsMarkup = this.makeMoviesCards(normalizedResults);
 
         this.refs.cardsContainer.insertAdjacentHTML('beforeend', moviesCardsMarkup);
         this.showCardsContainer();
+        this.hideCardsListLoader();
         this.showImages(this.page);
 
         this.incrementPage();
@@ -476,6 +507,7 @@ export default class Application {
   };
 
   getMoreMovies = path => {
+    this.showAnchorLoader();
     this.fetchMovies(path)
       .then(data => {
         const results = data.results;
@@ -490,7 +522,7 @@ export default class Application {
 
         this.refs.cardsContainer.insertAdjacentHTML('beforeend', moviesCardsMarkup);
         this.showImages(this.page);
-
+        this.hideAnchorLoader();
         this.incrementPage();
       })
       .catch(showError);
@@ -521,8 +553,13 @@ export default class Application {
   };
 
   observeLoadMoreAnchor = () => {
-    this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
+    // this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
     this.loadMoreObserver.observe(this.refs.loadMoreAnchor);
+  };
+
+  unObserveLoadMoreAnchor = () => {
+    this.loadMoreObserver.disconnect();
+    // this.refs.loadMoreAnchor.classList.add(this.CSS.IS_HIDDEN);
   };
 
   onMoviesEnd = ([entry], observer) => {
@@ -532,11 +569,11 @@ export default class Application {
 
     if (this.page === this.total_pages + 1) {
       observer.disconnect();
-      this.refs.loadMoreAnchor.classList.add(this.CSS.IS_HIDDEN);
+      // this.refs.loadMoreAnchor.classList.add(this.CSS.IS_HIDDEN);
       return;
     }
     observer.observe(this.refs.loadMoreAnchor);
-    this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
+    // this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
 
     this.getMoreMovies(this.path);
   };
