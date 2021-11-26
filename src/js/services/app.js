@@ -9,6 +9,7 @@ export default class Application {
     genre: 'genre/movie/list',
     query: 'search/movie',
   };
+  #PER_PAGES = 12;
 
   constructor({
     makeMoviesCards,
@@ -28,7 +29,7 @@ export default class Application {
     this.makeHeaderForm = makeHeaderForm;
     this.makeLibraryBtns = makeLibraryBtns;
     this.page = 1;
-    this.total_pages = null;
+    this.total_pages = 0;
     this.refs = refs;
     this.CSS = CSS;
     this.spriteUrl = { url: spriteUrl };
@@ -44,6 +45,13 @@ export default class Application {
     this.loadSpinner = loadSpinner;
     this.windowSpinner = windowSpinner;
     this.anchorSpinner = anchorSpinner;
+    this.listMovietoWatched = [];
+    this.listMovietoQueue = [];
+    this.key = {
+      watched: 'watched',
+      queue: 'queue',
+    };
+    this.isMyLibrary = false;
   }
   // пример использование функции по работе с жанрами и годом в запросе топ фильмов
   // fetch(".......").then(res=>res.json()).then(films => {
@@ -257,6 +265,16 @@ export default class Application {
   getNormalizeOneMovie(film) {
     return this.normalize(film, this.createGenresFromID(film));
   }
+
+  normalizeIdsMovies = movies => {
+    return movies.map(movie => {
+      return {
+        ...movie,
+        currentPage: this.page,
+      };
+    });
+  };
+
   /* ------------ НОРМАЛИЗАЦИЯ ДАННЫХ КОНЕЦ ------------ */
 
   // Ниже можно добавлять методы, которые касаются работы с DOM
@@ -389,17 +407,25 @@ export default class Application {
   renderMyLibraryMovies = key => {
     const localStorageInfo = this.loadInfoFromLocalStorage(key);
 
-    console.log(localStorageInfo);
+    console.log(localStorageInfo.length);
 
-    if (localStorageInfo == null || localStorageInfo.length == 0) {
+    this.total_pages = Math.ceil(localStorageInfo.length / this.#PER_PAGES);
+
+    if (!this.total_pages) {
       this.refs.cardsContainer.innerHTML = `<p class="my-library__description">В даному розділі фільми відсутні!</p>`;
-    } else {
-      this.refs.cardsContainer.insertAdjacentHTML(
-        'beforeend',
-        this.makeMoviesCards(localStorageInfo),
-      );
+      return;
     }
-    this.hideCardsListLoader();
+
+    const startIdx = (this.page - 1) * this.#PER_PAGES;
+    const endIdx = this.page * this.#PER_PAGES;
+
+    const onePageMovies = localStorageInfo.slice(startIdx, endIdx);
+
+    const normalizeMovies = this.normalizeIdsMovies(onePageMovies);
+
+    const moviesCardsMarkup = this.makeMoviesCards(normalizeMovies);
+
+    this.refs.cardsContainer.insertAdjacentHTML('beforeend', moviesCardsMarkup);
   };
 
   // Юра
@@ -408,15 +434,19 @@ export default class Application {
 
   loadInfoFromLocalStorage = key => {
     try {
-      return JSON.parse(localStorage.getItem(key));
+      const localeStorageMoviesData = JSON.parse(localStorage.getItem(key));
+      if (!localeStorageMoviesData) {
+        return [];
+      }
+      return localeStorageMoviesData;
     } catch (e) {
       console.log(e);
       return [];
     }
   };
 
-  loadBtnStatus = LibraryBtn => {
-    localStorage.setItem('button', LibraryBtn.dataset.key);
+  loadBtnDataKeyToLocalStorage = BtnDataKey => {
+    localStorage.setItem('button', BtnDataKey);
   };
 
   getActiveLibraryBtn = () => {
@@ -492,14 +522,13 @@ export default class Application {
 
         this.total_pages = data.total_pages;
 
-        this.observeLoadMoreAnchor();
-
         const moviesCardsMarkup = this.makeMoviesCards(normalizedResults);
 
         this.refs.cardsContainer.insertAdjacentHTML('beforeend', moviesCardsMarkup);
         this.showCardsContainer();
         this.hideCardsListLoader();
         this.showImages(this.page);
+        this.observeLoadMoreAnchor();
 
         this.incrementPage();
       })
@@ -526,6 +555,14 @@ export default class Application {
         this.incrementPage();
       })
       .catch(showError);
+  };
+
+  getMoreLibraryMovies = key => {
+    this.showAnchorLoader();
+    this.renderMyLibraryMovies(key);
+    this.showImages(this.page);
+    this.hideAnchorLoader();
+    this.incrementPage();
   };
 
   // Ниже можно добавлять методы, которые касаются обработки событий
@@ -575,6 +612,10 @@ export default class Application {
     observer.observe(this.refs.loadMoreAnchor);
     // this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
 
+    if (this.isMyLibrary) {
+      this.getMoreLibraryMovies(this.currentLibraryKey);
+      return;
+    }
     this.getMoreMovies(this.path);
   };
 
@@ -594,6 +635,7 @@ export default class Application {
       return;
     }
     if (e.target === this.refs.homeBtn) {
+      this.isMyLibrary = false;
       this.getElement(this.refs.libraryBtnsSelector).removeEventListener(
         'click',
         this.onLibraryBtnsClick,
@@ -609,7 +651,6 @@ export default class Application {
         formRef.addEventListener('submit', this.onSearchFormSubmit);
       });
 
-      // this.clearCardsContainer();
       this.resetPage();
       this.unObserveLoadMoreAnchor();
 
@@ -620,6 +661,7 @@ export default class Application {
     }
 
     if (e.target === this.refs.myLibraryBtn) {
+      this.isMyLibrary = true;
       this.accentEl(e.target);
       this.clearAccent(this.refs.homeBtn);
       this.showLibraryBackground();
@@ -632,16 +674,18 @@ export default class Application {
           const libraryBtns = document.querySelector(this.refs.libraryBtnsSelector);
 
           const activeLibraryBtn = this.getActiveLibraryBtn();
-          this.renderMyLibraryMovies(activeLibraryBtn.dataset.key);
+          this.currentLibraryKey = activeLibraryBtn.dataset.key;
+          this.renderMyLibraryMovies(this.currentLibraryKey);
+
           this.showCardsContainer();
+          this.hideCardsListLoader();
+          this.showImages(this.page);
+          this.observeLoadMoreAnchor();
+          this.incrementPage();
 
           libraryBtns.addEventListener('click', this.onLibraryBtnsClick);
         },
       );
-
-      // this.clearCardsContainer();
-      // this.resetPage();
-      // this.unObserveLoadMoreAnchor();
 
       this.refs.form.removeEventListener('submit', this.onSearchFormSubmit);
       return;
@@ -659,7 +703,6 @@ export default class Application {
       return;
     }
 
-    // this.clearCardsContainer();
     this.resetPage();
     this.unObserveLoadMoreAnchor();
 
@@ -685,26 +728,44 @@ export default class Application {
 
   // Юра
 
+  toggleAccentBtn = (target, queueBtn, watchedBtn) => {
+    if (target === queueBtn) {
+      this.accentEl(target);
+      this.clearAccent(watchedBtn);
+    } else {
+      this.accentEl(target);
+      this.clearAccent(queueBtn);
+    }
+  };
+
   onLibraryBtnsClick = e => {
     const queueBtn = document.querySelector(this.refs.queueBtnSelector);
     const watchedBtn = document.querySelector(this.refs.watchedBtnSelector);
 
-    if (e.target === queueBtn) {
-      this.loadBtnStatus(e.target);
-
-      this.accentEl(e.target);
-      this.clearAccent(watchedBtn);
-
-      this.renderMyLibraryMovies(e.target.dataset.key);
+    if (
+      (e.target !== queueBtn && e.target !== watchedBtn) ||
+      e.target.classList.contains(this.CSS.ACCENT)
+    ) {
+      return;
     }
-    if (e.target === watchedBtn) {
-      this.loadBtnStatus(e.target);
 
-      this.accentEl(e.target);
+    this.currentLibraryKey = e.target.dataset.key;
+    this.loadBtnDataKeyToLocalStorage(this.currentLibraryKey);
 
-      this.clearAccent(queueBtn);
+    this.toggleAccentBtn(e.target, queueBtn, watchedBtn);
+
+    this.resetPage();
+    this.unObserveLoadMoreAnchor();
+
+    this.clearCardsContainer().then(() => {
       this.renderMyLibraryMovies(e.target.dataset.key);
-    }
+
+      this.showCardsContainer();
+      this.hideCardsListLoader();
+      this.showImages(this.page);
+      this.observeLoadMoreAnchor();
+      this.incrementPage();
+    });
   };
   // Artem: function for listener function
   onCardsClick = e => {
@@ -725,10 +786,13 @@ export default class Application {
   };
 
   // Artem: methods open-close modal close
+
   onceFilmRender = data => {
     const markup = this.makeMovieDetails(data);
     this.refs.cardModal.innerHTML = markup;
-
+    // Добавляет слушателя на кнопки "addToWatched", "addToQueue" при открытии модального окна
+    this.addEventListenerOnBtnWatchedQueue();
+    //
     const btnCloseModal = document.querySelector('.card-modal__button');
     btnCloseModal.addEventListener('click', this.closeShowModal);
     return;
@@ -756,4 +820,80 @@ export default class Application {
   closeModalWindow = () => {
     this.refs.jsDevsModal.classList.remove('js-open-modal');
   };
+
+  // ======================Vadym =================================
+
+  addEventListenerOnBtnWatchedQueue = () => {
+    const cartModalBtnList = document.querySelector('.card__btn-list');
+    cartModalBtnList.addEventListener('click', this.sortMovieListByUser);
+  };
+
+  sortMovieListByUser = e => {
+    const movieID = e.currentTarget.dataset.id;
+
+    if (e.target.dataset.action === 'add-to-watched') {
+      this.addMovieToWatched(movieID);
+    }
+
+    if (e.target.dataset.action === 'add-to-queue') {
+      this.addMovieToQueue(movieID);
+    }
+  };
+
+  addMovieToWatched = movieId => {
+    const dataJSONWatched = this.loadInfoFromLocalStorage(this.key.watched);
+
+    let dataJSONWatchedMap = [];
+
+    if (dataJSONWatched !== null) {
+      dataJSONWatchedMap = dataJSONWatched.map(r => r.id);
+    }
+
+    if (dataJSONWatchedMap.includes(Number(movieId))) {
+      showAlert('Увага', 'Цей фільм вже знаходиться у Вашій бібліотеці');
+      return;
+    }
+
+    this.fetchFilmByDetails(movieId).then(data => {
+      const normalizedResults = this.normalizedDataToLocaleStorage(data);
+      showAlert('Вітаємо', 'Цей фільм був успішно додано до Вашої бібліотеки у розділ "Watched"');
+      this.listMovietoWatched.push(normalizedResults);
+      localStorage.setItem(this.key.watched, JSON.stringify(this.listMovietoWatched));
+    });
+  };
+
+  addMovieToQueue = movieId => {
+    const dataJSONQueue = this.loadInfoFromLocalStorage(this.key.queue);
+    let dataJSONQueueMap = [];
+
+    if (dataJSONQueue !== null) {
+      dataJSONQueueMap = dataJSONQueue.map(r => r.id);
+    }
+
+    if (dataJSONQueueMap.includes(Number(movieId))) {
+      showAlert('Увага', 'Цей фільм вже знаходиться у Вашій бібліотеці');
+      return;
+    }
+
+    this.fetchFilmByDetails(movieId).then(data => {
+      const normalizedResults = this.normalizedDataToLocaleStorage(data);
+      showAlert('Вітаємо', 'Цей фільм був успішно додано до Вашої бібліотеки у розділ "Queue"');
+      this.listMovietoQueue.push(normalizedResults);
+      localStorage.setItem(this.key.queue, JSON.stringify(this.listMovietoQueue));
+    });
+  };
+
+  //========== Нормализация перед localeStorage ==========
+
+  normalizedDataToLocaleStorage = obj => {
+    obj.img = this.createImage(obj);
+    obj.year = this.createYear(obj);
+    if (obj.genres.length === 3) {
+      obj.genres.splice(2, 1, { id: 7777777, name: 'Other' });
+    }
+    return obj;
+  };
+
+  // =========== Конец нормализации localeStorage ================
+  // ====================== Vadym ==============================
 }
