@@ -190,14 +190,14 @@ export default class Application {
 
   //Artem: fetch for details once films
 
-  fetchFilmByDetails = async id => {
+  fetchFilmByID = async id => {
     const res = await fetch(
       `${this.#BASE_API_URL}/movie/${id}?api_key=${this.#API_KEY}&append_to_response=videos`,
     );
     if (res.ok) {
       return res.json();
     }
-    console.log('no responce');
+
     return Promise.reject({
       title: res.status,
       message: res.statusText,
@@ -780,7 +780,7 @@ export default class Application {
 
     this.openShowModal();
 
-    this.fetchFilmByDetails(id)
+    this.fetchFilmByID(id)
       .then(data => this.onceFilmRender(data))
       .catch(error => {
         console.log(error);
@@ -856,7 +856,7 @@ export default class Application {
       return;
     }
 
-    this.fetchFilmByDetails(movieId).then(data => {
+    this.fetchFilmByID(movieId).then(data => {
       const normalizedResults = this.normalizedDataToLocaleStorage(data);
       showAlert('Вітаємо', 'Цей фільм був успішно додано до Вашої бібліотеки у розділ "Watched"');
       this.listMovietoWatched.push(normalizedResults);
@@ -877,7 +877,7 @@ export default class Application {
       return;
     }
 
-    this.fetchFilmByDetails(movieId).then(data => {
+    this.fetchFilmByID(movieId).then(data => {
       const normalizedResults = this.normalizedDataToLocaleStorage(data);
       showAlert('Вітаємо', 'Цей фільм був успішно додано до Вашої бібліотеки у розділ "Queue"');
       this.listMovietoQueue.push(normalizedResults);
