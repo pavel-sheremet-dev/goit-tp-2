@@ -68,12 +68,7 @@ export default class Application {
     this.refs.form.addEventListener('submit', this.onSearchFormSubmit);
     this.getLoadMoreObserver();
     this.refs.footerDevsLink.addEventListener('click', this.modalOverflow);
-    this.refs.clossModal.addEventListener('click', this.closeModalWindow);
-    // this.refs.myLibraryBtn.addEventListener('click', this.renderMyLibrary);
-    //Artem modal-window
     this.refs.cardsContainer.addEventListener('click', this.onCardsClick);
-    // this.refs.closeBtnModal.addEventListener('click', this.closeShowModal);
-    // Сюда добавляем слушатели событий, которые должны подключиться при первой загрузке страницы (например клики на кнопки HOME и My Library)
     this.refs.logo.addEventListener('click', this.onLogoClick);
   };
 
