@@ -284,20 +284,20 @@ export default class Application {
     this.accentEl(this.refs.homeBtn);
     this.clearAccent(this.refs.myLibraryBtn);
     this.showHomepageBackground();
-      this.renderHeaderMarkup(this.makeHeaderForm, this.spriteUrl).then(() => {
-        const formRef = document.querySelector(this.refs.formSelector);
-        this.notificationEl = document.querySelector(this.refs.notificationElSelector);
+    this.renderHeaderMarkup(this.makeHeaderForm, this.spriteUrl).then(() => {
+      const formRef = document.querySelector(this.refs.formSelector);
+      this.notificationEl = document.querySelector(this.refs.notificationElSelector);
 
-        formRef.addEventListener('submit', this.onSearchFormSubmit);
-      });
+      formRef.addEventListener('submit', this.onSearchFormSubmit);
+    });
 
-      this.resetPage();
-      this.unObserveLoadMoreAnchor();
+    this.resetPage();
+    this.unObserveLoadMoreAnchor();
 
-      this.path = this.getTopRatedPath();
-      this.getMovies(this.path);
+    this.path = this.getTopRatedPath();
+    this.getMovies(this.path);
 
-      return;
+    return;
   };
   // нужно для отображения подходящего бекграунта
 
@@ -869,71 +869,106 @@ export default class Application {
   // ====================== Vadym =================================
 
   addEventListenerOnBtnWatchedQueue = () => {
-    const cartModalBtnList = document.querySelector('.movie-card__btn-list');
-    cartModalBtnList.addEventListener('click', this.sortMovieListByUser);
+    const refs = {
+      cartModalBtnList: document.querySelector('.movie-card__btn-list'),
+      addMovieToWatchedBtn: document.querySelector('[data-action="add-to-watched"]'),
+      addMovieToQueueBtn: document.querySelector('[data-action="add-to-queue"]'),
+    };
+
+    const movieId = refs.cartModalBtnList.dataset.id;
+    const includeIdOnLibraryToWatched = this.includesMovieOnLibrary(movieId, this.key.watched);
+
+    const includeIdOnLibraryToQueue = this.includesMovieOnLibrary(movieId, this.key.queue);
+    if (includeIdOnLibraryToWatched) {
+      refs.addMovieToWatchedBtn.textContent = 'ADDED TO WATCHED';
+      refs.addMovieToWatchedBtn.style.backgroundColor = '#ff6b08';
+    }
+    if (includeIdOnLibraryToQueue) {
+      refs.addMovieToQueueBtn.textContent = 'ADDED TO QUEUE';
+      refs.addMovieToQueueBtn.style.backgroundColor = '#ff6b08';
+    }
+
+    refs.cartModalBtnList.addEventListener('click', this.sortMovieListByUser);
   };
 
   sortMovieListByUser = e => {
     const movieID = e.currentTarget.dataset.id;
 
-    if (e.target.dataset.action === 'add-to-watched') {
-      this.addMovieToWatched(movieID);
+    const eventTargetDataset = e.target.dataset.action;
+    const btnKey = this.keyGeneration(eventTargetDataset);
+
+    if (eventTargetDataset === 'add-to-watched') {
+      this.addMovieToWatched(movieID, btnKey);
     }
 
-    if (e.target.dataset.action === 'add-to-queue') {
-      this.addMovieToQueue(movieID);
+    if (eventTargetDataset === 'add-to-queue') {
+      this.addMovieToQueue(movieID, btnKey);
     }
   };
 
-  addMovieToWatched = movieId => {
-    const dataJSONWatched = this.loadInfoFromLocalStorage(this.key.watched);
+  addMovieToWatched = (movieId, btnKey) => {
+    const includeIdOnLibraryToWatched = this.includesMovieOnLibrary(movieId, btnKey);
 
-    let dataJSONWatchedMap = [];
-
-    if (dataJSONWatched !== null) {
-      dataJSONWatchedMap = dataJSONWatched.map(r => r.id);
-    }
-
-    if (dataJSONWatchedMap.includes(Number(movieId))) {
-      showAlert('Увага', 'Цей фільм вже знаходиться у Вашій бібліотеці');
+    if (includeIdOnLibraryToWatched) {
+      showAlert('Warning 🤔', 'This movie is already in your library!');
       return;
     }
 
     this.fetchMovieByID(movieId).then(data => {
       const normalizedResults = this.normalizedDataToLocaleStorage(data);
-      showAlert('Вітаємо', 'Цей фільм був успішно додано до Вашої бібліотеки у розділ "Watched"');
+      showAlert(
+        'Congratulations 😄',
+        'This movie has been successfully added to your library under "Watched".',
+      );
       this.listMovietoWatched.push(normalizedResults);
-      localStorage.setItem(this.key.watched, JSON.stringify(this.listMovietoWatched));
+      localStorage.setItem(btnKey, JSON.stringify(this.listMovietoWatched));
     });
   };
 
-  addMovieToQueue = movieId => {
-    const dataJSONQueue = this.loadInfoFromLocalStorage(this.key.queue);
-    let dataJSONQueueMap = [];
+  addMovieToQueue = (movieId, btnKey) => {
+    const includeIdOnLibraryToQueue = this.includesMovieOnLibrary(movieId, btnKey);
 
-    if (dataJSONQueue !== null) {
-      dataJSONQueueMap = dataJSONQueue.map(r => r.id);
-    }
-
-    if (dataJSONQueueMap.includes(Number(movieId))) {
-      showAlert('Увага', 'Цей фільм вже знаходиться у Вашій бібліотеці');
+    if (includeIdOnLibraryToQueue) {
+      showAlert('Warning 🤔', 'This movie is already in your library!');
       return;
     }
 
     this.fetchMovieByID(movieId).then(data => {
       const normalizedResults = this.normalizedDataToLocaleStorage(data);
-      showAlert('Вітаємо', 'Цей фільм був успішно додано до Вашої бібліотеки у розділ "Queue"');
+      showAlert(
+        'Congratulations 😄',
+        'This movie has been successfully added to your library under "Queue".',
+      );
       this.listMovietoQueue.push(normalizedResults);
       localStorage.setItem(this.key.queue, JSON.stringify(this.listMovietoQueue));
     });
   };
+  includesMovieOnLibrary = (id, key) => {
+    const dataJSON = this.loadInfoFromLocalStorage(key);
+    let dataJSONMap = [];
 
+    if (dataJSON !== null) {
+      dataJSONMap = dataJSON.map(result => result.id);
+    }
+    return dataJSONMap.includes(Number(id));
+  };
+  keyGeneration = key => {
+    if (key === 'add-to-watched') {
+      key = this.key.watched;
+    }
+    if (key === 'add-to-queue') {
+      key = this.key.queue;
+    }
+    return key;
+  };
   //========== Нормализация перед localeStorage ==========
 
   normalizedDataToLocaleStorage = obj => {
     obj.img = this.createImage(obj);
     obj.year = this.createYear(obj);
-    if (obj.genres.length === 3) {
+    if (obj.genres.length > 2) {
+      const newGenres = obj.genres.slice(0, 3);
+      obj.genres = newGenres;
       obj.genres.splice(2, 1, { id: 7777777, name: 'Other' });
     }
     return obj;
