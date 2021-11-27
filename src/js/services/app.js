@@ -1,6 +1,5 @@
 import { showAlert, showError } from '../vendors/alerts';
 import ALERTS from '../data/alertsMsgs';
-import artemTamplate from '..//../templating/movieDetails';
 
 export default class Application {
   #API_KEY = '6759d249684e99a49309af19f6af0ff2';
@@ -10,6 +9,7 @@ export default class Application {
     genre: 'genre/movie/list',
     query: 'search/movie',
   };
+  #PER_PAGES = 12;
 
   constructor({
     makeMoviesCards,
@@ -20,13 +20,16 @@ export default class Application {
     CSS,
     spriteUrl,
     brokenImgUrl,
+    loadSpinner,
+    windowSpinner,
+    anchorSpinner,
   }) {
     this.makeMoviesCards = makeMoviesCards;
     this.makeMovieDetails = makeMovieDetails;
     this.makeHeaderForm = makeHeaderForm;
     this.makeLibraryBtns = makeLibraryBtns;
     this.page = 1;
-    this.total_pages = null;
+    this.total_pages = 0;
     this.refs = refs;
     this.CSS = CSS;
     this.spriteUrl = { url: spriteUrl };
@@ -39,12 +42,16 @@ export default class Application {
     this.notificationEl = null;
     this.timeoutId = null;
     this.loadMoreObserver = null;
+    this.loadSpinner = loadSpinner;
+    this.windowSpinner = windowSpinner;
+    this.anchorSpinner = anchorSpinner;
     this.listMovietoWatched = [];
     this.listMovietoQueue = [];
     this.key = {
       watched: 'watched',
       queue: 'queue',
     };
+    this.isMyLibrary = false;
   }
   // пример использование функции по работе с жанрами и годом в запросе топ фильмов
   // fetch(".......").then(res=>res.json()).then(films => {
@@ -56,6 +63,7 @@ export default class Application {
   // Методы лучше записывать как стрелочные функции, в таком случае не теряется контекст, если метод передается как коллбек-функция
 
   loadListeners = () => {
+    window.addEventListener('load', this.onLoadPage);
     this.refs.navigation.addEventListener('click', this.onNavigationListClick);
     this.refs.form.addEventListener('submit', this.onSearchFormSubmit);
     this.getLoadMoreObserver();
@@ -72,7 +80,7 @@ export default class Application {
     // Сюда добавляем все действия, которые должны произойти при загрузке стартовой страницы, например слушатели событий, отрисовка популярных фильмов.
     this.loadListeners();
     this.getGenres();
-    this.onLoadPage();
+    this.getNotFoundPicture(this._not_found_img);
   };
 
   // Ниже можно добавлять методы, которые касаются работы с API
@@ -182,14 +190,14 @@ export default class Application {
 
   //Artem: fetch for details once films
 
-  fetchFilmByDetails = async id => {
+  fetchFilmByID = async id => {
     const res = await fetch(
       `${this.#BASE_API_URL}/movie/${id}?api_key=${this.#API_KEY}&append_to_response=videos`,
     );
     if (res.ok) {
       return res.json();
     }
-    console.log('no responce');
+
     return Promise.reject({
       title: res.status,
       message: res.statusText,
@@ -245,6 +253,7 @@ export default class Application {
     genres: metod,
     img: this.createImage(film),
     vote_average: this.pad(film.vote_average),
+    currentPage: this.page,
   });
   // Соединение информации о фильме для страницы home
   getNormalizeMovies(films, allGenres) {
@@ -256,6 +265,16 @@ export default class Application {
   getNormalizeOneMovie(film) {
     return this.normalize(film, this.createGenresFromID(film));
   }
+
+  normalizeIdsMovies = movies => {
+    return movies.map(movie => {
+      return {
+        ...movie,
+        currentPage: this.page,
+      };
+    });
+  };
+
   /* ------------ НОРМАЛИЗАЦИЯ ДАННЫХ КОНЕЦ ------------ */
 
   // Ниже можно добавлять методы, которые касаются работы с DOM
@@ -317,9 +336,19 @@ export default class Application {
   */
 
   clearCardsContainer = () => {
-    this.refs.loadMoreAnchor.classList.add(this.CSS.IS_HIDDEN);
-    this.refs.cardsContainer.innerHTML = '';
-    this.resetPage();
+    this.refs.cardsContainer.classList.add(this.CSS.IS_HIDDEN);
+    this.showCardsListLoader();
+    const promise = new Promise(res => {
+      setTimeout(() => {
+        this.refs.cardsContainer.innerHTML = '';
+        res(true);
+      }, 250);
+    });
+    return promise;
+  };
+
+  showCardsContainer = () => {
+    this.refs.cardsContainer.classList.remove(this.CSS.IS_HIDDEN);
   };
 
   renderHeaderMarkup = (markupTemplate, data = '') => {
@@ -332,35 +361,76 @@ export default class Application {
       .catch(console.log);
   };
 
+  showCardsListLoader = () => {
+    this.refs.loaderBackdrop.classList.remove(this.CSS.IS_HIDDEN);
+    this.loadSpinner.spin(this.refs.loaderSpinner);
+  };
+
+  hideCardsListLoader = () => {
+    this.refs.loaderBackdrop.classList.add(this.CSS.IS_HIDDEN);
+    this.loadSpinner.stop();
+  };
+
+  showWindowLoader = () => {
+    this.refs.windowLoaderBackdrop.classList.remove(this.CSS.IS_HIDDEN);
+    this.windowSpinner.spin(this.refs.windowSpinner);
+  };
+
+  hideWindowLoader = () => {
+    this.refs.windowLoaderBackdrop.classList.add(this.CSS.IS_HIDDEN);
+    this.windowSpinner.stop();
+  };
+
+  showAnchorLoader = () => {
+    this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
+    this.anchorSpinner.spin(this.refs.anchorSpinner);
+  };
+
+  hideAnchorLoader = () => {
+    this.refs.loadMoreAnchor.classList.add(this.CSS.IS_HIDDEN);
+    this.anchorSpinner.stop();
+  };
+
   // Юра
 
   // renderMyLibrary = () => {
   //   this.clearCardsContainer();
+  //     this.resetPage();
+  //   this.unObserveLoadMoreAnchor();
 
   //   this.refs.cardsTitle.classList.add(this.CSS.IS_HIDDEN);
   //   this.renderMyLibraryMovies('Queue');
   // };
 
   // Юра
-  renderMyLibraryMovies = key => {
-    this.clearCardsContainer();
 
+  getTotalPages = fullData => {
+    this.total_pages = Math.ceil(fullData.length / this.#PER_PAGES);
+  };
+
+  getOnePageData = data => {
+    const startIdx = (this.page - 1) * this.#PER_PAGES;
+    const endIdx = this.page * this.#PER_PAGES;
+    return data.slice(startIdx, endIdx);
+  };
+
+  renderMyLibraryMovies = key => {
     const localStorageInfo = this.loadInfoFromLocalStorage(key);
 
-    console.log(localStorageInfo);
+    this.getTotalPages(localStorageInfo);
 
-    if (localStorageInfo == null || localStorageInfo.length == 0) {
-      this.refs.cardsContainer.insertAdjacentHTML(
-        'beforeend',
-        `<p class="my-library__description">В даному розділі фільми відсутні!</p>`,
-      );
+    if (!this.total_pages) {
+      this.refs.cardsContainer.innerHTML = `<p class="my-library__description">В даному розділі фільми відсутні!</p>`;
       return;
-    } else {
-      this.refs.cardsContainer.insertAdjacentHTML(
-        'beforeend',
-        this.makeMoviesCards(localStorageInfo),
-      );
     }
+
+    const onePageMovies = this.getOnePageData(localStorageInfo);
+
+    const normalizeMovies = this.normalizeIdsMovies(onePageMovies);
+
+    const moviesCardsMarkup = this.makeMoviesCards(normalizeMovies);
+
+    this.refs.cardsContainer.insertAdjacentHTML('beforeend', moviesCardsMarkup);
   };
 
   // Юра
@@ -369,15 +439,19 @@ export default class Application {
 
   loadInfoFromLocalStorage = key => {
     try {
-      return JSON.parse(localStorage.getItem(key));
+      const localeStorageMoviesData = JSON.parse(localStorage.getItem(key));
+      if (!localeStorageMoviesData) {
+        return [];
+      }
+      return localeStorageMoviesData;
     } catch (e) {
       console.log(e);
       return [];
     }
   };
 
-  loadBtnStatus = LibraryBtn => {
-    localStorage.setItem('button', LibraryBtn.dataset.key);
+  loadBtnDataKeyToLocalStorage = BtnDataKey => {
+    localStorage.setItem('button', BtnDataKey);
   };
 
   getActiveLibraryBtn = () => {
@@ -400,26 +474,94 @@ export default class Application {
     return document.querySelector(selector);
   };
 
+  getNotFoundPicture = broken_img_url => {
+    const img = new Image();
+    img.src = broken_img_url;
+    img.dataset.src = broken_img_url;
+    img.alt = 'Not found image';
+    img.classList.add(this.CSS.IMG, this.CSS.NOT_FOUND);
+    return img;
+  };
+
+  showImages = page => {
+    const images = document.querySelectorAll(`[data-page="${page}"]`);
+
+    // console.log(images);
+
+    images.forEach(image => {
+      const liRef = image.closest('li');
+
+      this.showImage(image, liRef);
+
+      image.onerror = () => {
+        const notFoundImage = this.getNotFoundPicture(this._not_found_img);
+        image.replaceWith(notFoundImage);
+        setTimeout(() => {
+          liRef.classList.remove(this.CSS.ACTIVE);
+        }, 3000);
+      };
+    });
+  };
+
+  showImage = (image, liRef) => {
+    image.addEventListener(
+      'load',
+      () => {
+        image.classList.remove(this.CSS.IS_HIDDEN);
+        liRef.classList.remove(this.CSS.ACTIVE);
+      },
+      { once: true },
+    );
+  };
+
+  renderMovies = data => {
+    const results = data.results;
+    if (!results.length) {
+      this.showNotification(this.notificationEl, ALERTS.NOT_FOUND);
+      return;
+    }
+    const normalizedResults = this.getNormalizeMovies(results, this.genres);
+
+    this.total_pages = data.total_pages;
+
+    const moviesCardsMarkup = this.makeMoviesCards(normalizedResults);
+
+    this.refs.cardsContainer.insertAdjacentHTML('beforeend', moviesCardsMarkup);
+  };
+
   getMovies = path => {
-    return this.fetchMovies(path)
-      .then(data => {
-        const results = data.results;
-        if (!results.length) {
-          this.showNotification(this.notificationEl, ALERTS.NOT_FOUND);
-          return;
-        }
-
-        this.total_pages = data.total_pages;
-
+    Promise.all([this.fetchMovies(path), this.clearCardsContainer()])
+      .then(res => {
+        const data = res[0];
+        this.renderMovies(data);
+        this.showCardsContainer();
+        this.hideCardsListLoader();
+        this.showImages(this.page);
         this.observeLoadMoreAnchor();
+
         this.incrementPage();
-
-        const normalizedResults = this.getNormalizeMovies(results, this.genres);
-        const moviesCardsMarkup = this.makeMoviesCards(normalizedResults);
-
-        this.refs.cardsContainer.insertAdjacentHTML('beforeend', moviesCardsMarkup);
       })
       .catch(showError);
+  };
+
+  getMoreMovies = path => {
+    this.showAnchorLoader();
+    this.fetchMovies(path)
+      .then(data => {
+        this.renderMovies(data);
+        this.showImages(this.page);
+        this.hideAnchorLoader();
+        this.incrementPage();
+      })
+      .catch(showError);
+  };
+
+  getMoreLibraryMovies = key => {
+    this.showAnchorLoader();
+    this.renderMyLibraryMovies(key);
+    this.showImages(this.page);
+    this.hideAnchorLoader();
+    this.incrementPage();
   };
 
   // Ниже можно добавлять методы, которые касаются обработки событий
@@ -430,7 +572,7 @@ export default class Application {
     this.notificationEl = this.refs.notificationEl;
     this.path = this.getTopRatedPath();
 
-    this.getMovies(this.path).catch(showError);
+    this.getMovies(this.path);
   };
 
   /* ----------- OBSERVER INFINITY SCROLL ------------ */
@@ -447,8 +589,11 @@ export default class Application {
   };
 
   observeLoadMoreAnchor = () => {
-    this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
     this.loadMoreObserver.observe(this.refs.loadMoreAnchor);
+  };
+
+  unObserveLoadMoreAnchor = () => {
+    this.loadMoreObserver.disconnect();
   };
 
   onMoviesEnd = ([entry], observer) => {
@@ -458,12 +603,15 @@ export default class Application {
 
     if (this.page === this.total_pages + 1) {
       observer.disconnect();
-      this.refs.loadMoreAnchor.classList.add(this.CSS.IS_HIDDEN);
       return;
     }
     observer.observe(this.refs.loadMoreAnchor);
-    this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
-    this.getMovies(this.path); // загрузка новой порции
+
+    if (this.isMyLibrary) {
+      this.getMoreLibraryMovies(this.currentLibraryKey);
+      return;
+    }
+    this.getMoreMovies(this.path);
   };
 
   /* ----------- END OBSERVER INFINITY SCROLL ------------ */
@@ -482,6 +630,7 @@ export default class Application {
       return;
     }
     if (e.target === this.refs.homeBtn) {
+      this.isMyLibrary = false;
       this.getElement(this.refs.libraryBtnsSelector).removeEventListener(
         'click',
         this.onLibraryBtnsClick,
@@ -497,7 +646,8 @@ export default class Application {
         formRef.addEventListener('submit', this.onSearchFormSubmit);
       });
 
-      this.clearCardsContainer();
+      this.resetPage();
+      this.unObserveLoadMoreAnchor();
 
       this.path = this.getTopRatedPath();
       this.getMovies(this.path);
@@ -506,20 +656,31 @@ export default class Application {
     }
 
     if (e.target === this.refs.myLibraryBtn) {
+      this.isMyLibrary = true;
       this.accentEl(e.target);
       this.clearAccent(this.refs.homeBtn);
       this.showLibraryBackground();
-      this.renderHeaderMarkup(this.makeLibraryBtns).then(() => {
-        const libraryBtns = document.querySelector(this.refs.libraryBtnsSelector);
 
-        const activeLibraryBtn = this.getActiveLibraryBtn();
-        console.log(activeLibraryBtn.dataset.key);
-        this.renderMyLibraryMovies(activeLibraryBtn.dataset.key);
+      this.resetPage();
+      this.unObserveLoadMoreAnchor();
 
-        libraryBtns.addEventListener('click', this.onLibraryBtnsClick);
-      });
+      Promise.all([this.renderHeaderMarkup(this.makeLibraryBtns), this.clearCardsContainer()]).then(
+        () => {
+          const libraryBtns = document.querySelector(this.refs.libraryBtnsSelector);
 
-      this.clearCardsContainer();
+          const activeLibraryBtn = this.getActiveLibraryBtn();
+          this.currentLibraryKey = activeLibraryBtn.dataset.key;
+          this.renderMyLibraryMovies(this.currentLibraryKey);
+
+          this.showCardsContainer();
+          this.hideCardsListLoader();
+          this.showImages(this.page);
+          this.observeLoadMoreAnchor();
+          this.incrementPage();
+
+          libraryBtns.addEventListener('click', this.onLibraryBtnsClick);
+        },
+      );
 
       this.refs.form.removeEventListener('submit', this.onSearchFormSubmit);
       return;
@@ -532,16 +693,23 @@ export default class Application {
     const query = form.elements.query.value;
     const normalizedQuery = query.toLowerCase().trim().split(' ').join('+');
 
-    if (!query) {
+    if (!normalizedQuery) {
       this.showNotification(this.notificationEl, ALERTS.EMPTY);
       return;
     }
 
-    this.clearCardsContainer();
+    this.resetPage();
+    this.unObserveLoadMoreAnchor();
 
     this.path = this.getQueryPath(normalizedQuery);
 
-    this.getMovies(this.path).catch(showError);
+    this.fetchMovies(this.path).then(data => {
+      if (!data.results.length) {
+        this.showNotification(this.notificationEl, ALERTS.NOT_FOUND);
+        return;
+      }
+      this.getMovies(this.path);
+    });
   };
 
   showNotification = (el, message) => {
@@ -561,32 +729,49 @@ export default class Application {
 
   // Юра
 
+  toggleAccentBtn = (target, queueBtn, watchedBtn) => {
+    if (target === queueBtn) {
+      this.accentEl(target);
+      this.clearAccent(watchedBtn);
+    } else {
+      this.accentEl(target);
+      this.clearAccent(queueBtn);
+    }
+  };
+
   onLibraryBtnsClick = e => {
     const queueBtn = document.querySelector(this.refs.queueBtnSelector);
     const watchedBtn = document.querySelector(this.refs.watchedBtnSelector);
 
-    if (e.target === queueBtn) {
-      this.loadBtnStatus(e.target);
-
-      this.accentEl(e.target);
-      this.clearAccent(watchedBtn);
-
-      this.renderMyLibraryMovies(e.target.dataset.key);
+    if (
+      (e.target !== queueBtn && e.target !== watchedBtn) ||
+      e.target.classList.contains(this.CSS.ACCENT)
+    ) {
+      return;
     }
-    if (e.target === watchedBtn) {
-      this.loadBtnStatus(e.target);
 
-      this.accentEl(e.target);
+    this.currentLibraryKey = e.target.dataset.key;
+    this.loadBtnDataKeyToLocalStorage(this.currentLibraryKey);
 
-      this.clearAccent(queueBtn);
+    this.toggleAccentBtn(e.target, queueBtn, watchedBtn);
+
+    this.resetPage();
+    this.unObserveLoadMoreAnchor();
+
+    this.clearCardsContainer().then(() => {
       this.renderMyLibraryMovies(e.target.dataset.key);
-    }
+
+      this.showCardsContainer();
+      this.hideCardsListLoader();
+      this.showImages(this.page);
+      this.observeLoadMoreAnchor();
+      this.incrementPage();
+    });
   };
 
   // Artem: function for listener function
   onCardsClick = e => {
     e.preventDefault();
-    // console.log(e.target.closest('li').dataset.id);
     const id = e.target.closest('li').dataset.id;
     const forShowTampl = e.target.classList.contains('cards__list');
     if (forShowTampl) {
@@ -595,15 +780,17 @@ export default class Application {
 
     this.openShowModal();
 
-    this.fetchFilmByDetails(id)
+    this.fetchFilmByID(id)
       .then(data => this.onceFilmRender(data))
       .catch(error => {
         console.log(error);
       });
   };
+
   // Artem: methods open-close modal close
+
   onceFilmRender = data => {
-    const markup = artemTamplate(data);
+    const markup = this.makeMovieDetails(data);
     this.refs.cardModal.innerHTML = markup;
     // Добавляет слушателя на кнопки "addToWatched", "addToQueue" при открытии модального окна
     this.addEventListenerOnBtnWatchedQueue();
@@ -635,7 +822,9 @@ export default class Application {
   closeModalWindow = () => {
     this.refs.jsDevsModal.classList.remove('js-open-modal');
   };
-  // ======================Vadym =================================
+
+  // ====================== Vadym =================================
+
   addEventListenerOnBtnWatchedQueue = () => {
     const cartModalBtnList = document.querySelector('.card__btn-list');
     cartModalBtnList.addEventListener('click', this.sortMovieListByUser);
@@ -647,6 +836,7 @@ export default class Application {
     if (e.target.dataset.action === 'add-to-watched') {
       this.addMovieToWatched(movieID);
     }
+
     if (e.target.dataset.action === 'add-to-queue') {
       this.addMovieToQueue(movieID);
     }
@@ -666,7 +856,7 @@ export default class Application {
       return;
     }
 
-    this.fetchFilmByDetails(movieId).then(data => {
+    this.fetchFilmByID(movieId).then(data => {
       const normalizedResults = this.normalizedDataToLocaleStorage(data);
       showAlert('Вітаємо', 'Цей фільм був успішно додано до Вашої бібліотеки у розділ "Watched"');
       this.listMovietoWatched.push(normalizedResults);
@@ -687,14 +877,16 @@ export default class Application {
       return;
     }
 
-    this.fetchFilmByDetails(movieId).then(data => {
+    this.fetchFilmByID(movieId).then(data => {
       const normalizedResults = this.normalizedDataToLocaleStorage(data);
       showAlert('Вітаємо', 'Цей фільм був успішно додано до Вашої бібліотеки у розділ "Queue"');
       this.listMovietoQueue.push(normalizedResults);
       localStorage.setItem(this.key.queue, JSON.stringify(this.listMovietoQueue));
     });
   };
-  //==========================Нормализация перед localeStorage=======================
+
+  //========== Нормализация перед localeStorage ==========
+
   normalizedDataToLocaleStorage = obj => {
     obj.img = this.createImage(obj);
     obj.year = this.createYear(obj);
@@ -703,6 +895,7 @@ export default class Application {
     }
     return obj;
   };
-  //==========================Конец нормализации localeStorage=======================
-  // ======================Vadym =================================
+
+  // =========== Конец нормализации localeStorage ================
+  // ====================== Vadym ==============================
 }

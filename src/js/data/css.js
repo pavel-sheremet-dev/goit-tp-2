@@ -8,4 +8,6 @@ export default {
   LOCK: 'is-lock',
   NOT_FOUND: 'not-found',
   DELAY: 250,
+  IMG: 'cards__img',
+  NOT_FOUND: 'not-found',
 };

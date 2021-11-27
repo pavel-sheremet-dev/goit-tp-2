@@ -30,5 +30,10 @@ export default () => {
     jsDevsModal: document.querySelector('.js-devs-modal'),
     footerDevsLink: document.querySelector('.footer__devs-link'),
     clossModal: document.querySelector('.devs-modal__button'),
+    loaderSpinner: document.querySelector('.loader-spinner'),
+    loaderBackdrop: document.querySelector('.js-cards-list__loader'),
+    windowLoaderBackdrop: document.querySelector('.js-loader-backdrop'),
+    windowSpinner: document.querySelector('.window-spinner'),
+    anchorSpinner: document.querySelector('.cards__loadmore-spinner'),
   };
 };
