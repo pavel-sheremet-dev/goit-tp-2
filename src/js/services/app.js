@@ -5,7 +5,7 @@ export default class Application {
   #API_KEY = '6759d249684e99a49309af19f6af0ff2';
   #BASE_API_URL = 'https://api.themoviedb.org/3';
   #CATEGORIES = {
-    topRated: 'movie/top_rated',
+    topRated: '/trending/movie/week',
     genre: 'genre/movie/list',
     query: 'search/movie',
   };
@@ -35,7 +35,7 @@ export default class Application {
     this.spriteUrl = { url: spriteUrl };
     this.id = null;
     this.lang = 'en-US';
-    this._path = 'movie/top_rated';
+    this._path = '/trending/movie/week';
     this._urlParams = '';
     this.genres = [];
     this._not_found_img = brokenImgUrl;
@@ -279,19 +279,20 @@ export default class Application {
     this.accentEl(this.refs.homeBtn);
     this.clearAccent(this.refs.myLibraryBtn);
     this.showHomepageBackground();
-    this.renderHeaderMarkup(this.makeHeaderForm, this.spriteUrl).then(() => {
-      const formRef = document.querySelector(this.refs.formSelector);
-      this.notificationEl = document.querySelector(this.refs.notificationElSelector);
+      this.renderHeaderMarkup(this.makeHeaderForm, this.spriteUrl).then(() => {
+        const formRef = document.querySelector(this.refs.formSelector);
+        this.notificationEl = document.querySelector(this.refs.notificationElSelector);
 
-      formRef.addEventListener('submit', this.onSearchFormSubmit);
-    });
+        formRef.addEventListener('submit', this.onSearchFormSubmit);
+      });
 
-    this.clearCardsContainer();
+      this.resetPage();
+      this.unObserveLoadMoreAnchor();
 
-    this.path = this.getTopRatedPath();
-    this.getMovies(this.path);
+      this.path = this.getTopRatedPath();
+      this.getMovies(this.path);
 
-    return;
+      return;
   };
   // нужно для отображения подходящего бекграунта
 
