@@ -74,6 +74,7 @@ export default class Application {
     this.refs.cardsContainer.addEventListener('click', this.onCardsClick);
     // this.refs.closeBtnModal.addEventListener('click', this.closeShowModal);
     // Сюда добавляем слушатели событий, которые должны подключиться при первой загрузке страницы (например клики на кнопки HOME и My Library)
+    this.refs.logo.addEventListener('click', this.onLogoClick)
   };
 
   init = () => {
@@ -278,7 +279,25 @@ export default class Application {
   /* ------------ НОРМАЛИЗАЦИЯ ДАННЫХ КОНЕЦ ------------ */
 
   // Ниже можно добавлять методы, которые касаются работы с DOM
+ onLogoClick = (evt)=>{
+   evt.preventDefault();
+   this.accentEl(this.refs.homeBtn);
+   this.clearAccent(this.refs.myLibraryBtn);
+  this.showHomepageBackground();
+  this.renderHeaderMarkup(this.makeHeaderForm, this.spriteUrl).then(() => {
+    const formRef = document.querySelector(this.refs.formSelector);
+    this.notificationEl = document.querySelector(this.refs.notificationElSelector);
 
+    formRef.addEventListener('submit', this.onSearchFormSubmit);
+  });
+
+  this.clearCardsContainer();
+
+  this.path = this.getTopRatedPath();
+  this.getMovies(this.path);
+
+  return;
+ }
   // нужно для отображения подходящего бекграунта
 
   showHomepageBackground = () => {
