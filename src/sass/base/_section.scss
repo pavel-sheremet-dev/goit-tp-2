@@ -3,6 +3,10 @@ body {
   color: $main-text-color;
 }
 
+body.is-lock {
+  overflow: hidden;
+}
+
 // 0-479 responsive mobile container
 .container {
   width: 100%;

@@ -57,7 +57,7 @@ const anchorSpinner = new Spinner({
   rotate: 0,
   direction: 1,
   speed: 1,
-  zIndex: 2e9,
+  zIndex: 5,
   className: 'spinner',
   top: '50%',
   left: '50%',
