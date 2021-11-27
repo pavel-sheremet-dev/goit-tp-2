@@ -154,8 +154,9 @@
 }
 
 .movie-card__btn {
+  min-width: 113px;
   height: 100%;
-  padding: 14px 20px 12px 20px;
+  padding: 14px 6px 12px 6px;
   background-color: transparent;
   border: none;
   border: 1px solid $main-text-color;
@@ -166,6 +167,12 @@
   font-size: 12px;
   line-height: 1.33;
   transition: background-color $duration linear, color 150ms linear, border $duration linear;
+  @media screen and (min-width: 768px) {
+  min-width: 125px;
+  }
+  @media screen and (min-width: 1024px) {
+  min-width: 136px;
+  }
 }
 
 .movie-card__btn:hover,
@@ -196,5 +203,6 @@
   .movie-card__image {
     height: calc(395px * 1.2);
     object-fit: cover;
+    border-radius: 5px;
   }
 }
