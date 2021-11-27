@@ -404,22 +404,27 @@ export default class Application {
 
   // Юра
 
+  getTotalPages = fullData => {
+    this.total_pages = Math.ceil(fullData.length / this.#PER_PAGES);
+  };
+
+  getOnePageData = data => {
+    const startIdx = (this.page - 1) * this.#PER_PAGES;
+    const endIdx = this.page * this.#PER_PAGES;
+    return data.slice(startIdx, endIdx);
+  };
+
   renderMyLibraryMovies = key => {
     const localStorageInfo = this.loadInfoFromLocalStorage(key);
 
-    console.log(localStorageInfo.length);
-
-    this.total_pages = Math.ceil(localStorageInfo.length / this.#PER_PAGES);
+    this.getTotalPages(localStorageInfo);
 
     if (!this.total_pages) {
       this.refs.cardsContainer.innerHTML = `<p class="my-library__description">В даному розділі фільми відсутні!</p>`;
       return;
     }
 
-    const startIdx = (this.page - 1) * this.#PER_PAGES;
-    const endIdx = this.page * this.#PER_PAGES;
-
-    const onePageMovies = localStorageInfo.slice(startIdx, endIdx);
+    const onePageMovies = this.getOnePageData(localStorageInfo);
 
     const normalizeMovies = this.normalizeIdsMovies(onePageMovies);
 
@@ -481,7 +486,7 @@ export default class Application {
   showImages = page => {
     const images = document.querySelectorAll(`[data-page="${page}"]`);
 
-    console.log(images);
+    // console.log(images);
 
     images.forEach(image => {
       const liRef = image.closest('li');
@@ -509,22 +514,26 @@ export default class Application {
     );
   };
 
+  renderMovies = data => {
+    const results = data.results;
+    if (!results.length) {
+      this.showNotification(this.notificationEl, ALERTS.NOT_FOUND);
+      return;
+    }
+    const normalizedResults = this.getNormalizeMovies(results, this.genres);
+
+    this.total_pages = data.total_pages;
+
+    const moviesCardsMarkup = this.makeMoviesCards(normalizedResults);
+
+    this.refs.cardsContainer.insertAdjacentHTML('beforeend', moviesCardsMarkup);
+  };
+
   getMovies = path => {
-    return Promise.all([this.fetchMovies(path), this.clearCardsContainer()])
+    Promise.all([this.fetchMovies(path), this.clearCardsContainer()])
       .then(res => {
         const data = res[0];
-        const results = data.results;
-        if (!results.length) {
-          this.showNotification(this.notificationEl, ALERTS.NOT_FOUND);
-          return;
-        }
-        const normalizedResults = this.getNormalizeMovies(results, this.genres);
-
-        this.total_pages = data.total_pages;
-
-        const moviesCardsMarkup = this.makeMoviesCards(normalizedResults);
-
-        this.refs.cardsContainer.insertAdjacentHTML('beforeend', moviesCardsMarkup);
+        this.renderMovies(data);
         this.showCardsContainer();
         this.hideCardsListLoader();
         this.showImages(this.page);
@@ -539,17 +548,7 @@ export default class Application {
     this.showAnchorLoader();
     this.fetchMovies(path)
       .then(data => {
-        const results = data.results;
-        if (!results.length) {
-          this.showNotification(this.notificationEl, ALERTS.NOT_FOUND);
-          return;
-        }
-        const normalizedResults = this.getNormalizeMovies(results, this.genres);
-        this.total_pages = data.total_pages;
-
-        const moviesCardsMarkup = this.makeMoviesCards(normalizedResults);
-
-        this.refs.cardsContainer.insertAdjacentHTML('beforeend', moviesCardsMarkup);
+        this.renderMovies(data);
         this.showImages(this.page);
         this.hideAnchorLoader();
         this.incrementPage();
@@ -573,7 +572,7 @@ export default class Application {
     this.notificationEl = this.refs.notificationEl;
     this.path = this.getTopRatedPath();
 
-    this.getMovies(this.path).catch(showError);
+    this.getMovies(this.path);
   };
 
   /* ----------- OBSERVER INFINITY SCROLL ------------ */
@@ -590,13 +589,11 @@ export default class Application {
   };
 
   observeLoadMoreAnchor = () => {
-    // this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
     this.loadMoreObserver.observe(this.refs.loadMoreAnchor);
   };
 
   unObserveLoadMoreAnchor = () => {
     this.loadMoreObserver.disconnect();
-    // this.refs.loadMoreAnchor.classList.add(this.CSS.IS_HIDDEN);
   };
 
   onMoviesEnd = ([entry], observer) => {
@@ -606,11 +603,9 @@ export default class Application {
 
     if (this.page === this.total_pages + 1) {
       observer.disconnect();
-      // this.refs.loadMoreAnchor.classList.add(this.CSS.IS_HIDDEN);
       return;
     }
     observer.observe(this.refs.loadMoreAnchor);
-    // this.refs.loadMoreAnchor.classList.remove(this.CSS.IS_HIDDEN);
 
     if (this.isMyLibrary) {
       this.getMoreLibraryMovies(this.currentLibraryKey);
@@ -698,7 +693,7 @@ export default class Application {
     const query = form.elements.query.value;
     const normalizedQuery = query.toLowerCase().trim().split(' ').join('+');
 
-    if (!query) {
+    if (!normalizedQuery) {
       this.showNotification(this.notificationEl, ALERTS.EMPTY);
       return;
     }
@@ -708,7 +703,13 @@ export default class Application {
 
     this.path = this.getQueryPath(normalizedQuery);
 
-    this.getMovies(this.path).catch(showError);
+    this.fetchMovies(this.path).then(data => {
+      if (!data.results.length) {
+        this.showNotification(this.notificationEl, ALERTS.NOT_FOUND);
+        return;
+      }
+      this.getMovies(this.path);
+    });
   };
 
   showNotification = (el, message) => {
@@ -767,6 +768,7 @@ export default class Application {
       this.incrementPage();
     });
   };
+
   // Artem: function for listener function
   onCardsClick = e => {
     e.preventDefault();
@@ -821,7 +823,7 @@ export default class Application {
     this.refs.jsDevsModal.classList.remove('js-open-modal');
   };
 
-  // ======================Vadym =================================
+  // ====================== Vadym =================================
 
   addEventListenerOnBtnWatchedQueue = () => {
     const cartModalBtnList = document.querySelector('.card__btn-list');
