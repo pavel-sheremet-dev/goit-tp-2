@@ -44,7 +44,7 @@
           </li>
           <li class='stats-list__item stats-list__item-gen'>
             {{#each genres}}
-              {{name}}
+              {{this}}{{#unless @last}},{{/unless}} 
             {{/each}}
           </li>
         </ul>
