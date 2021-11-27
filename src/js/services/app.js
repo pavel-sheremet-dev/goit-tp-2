@@ -789,7 +789,8 @@ export default class Application {
   // Artem: function for listener function
 
   renderMovieDetails = data => {
-    const normalizeData = { ...data, ...this.spriteUrl };
+    const preNormalize = this.getNormalizeOneMovie(data);
+    const normalizeData = { ...preNormalize, ...this.spriteUrl };
 
     const movieMarkup = this.makeMovieDetails(normalizeData);
     this.refs.cardModalContent.innerHTML = movieMarkup;
