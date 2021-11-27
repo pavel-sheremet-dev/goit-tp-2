@@ -7,7 +7,7 @@
 .cards__list {
   display: block;
   opacity: 1;
-  transition: opacity 250ms linear;
+  transition: opacity $duration linear;
 }
 
 .cards__list.is-hidden {
@@ -48,7 +48,7 @@
   height: 100%;
   object-fit: cover;
   opacity: 1;
-  transition: opacity 250ms linear;
+  transition: opacity $duration linear;
   border-radius: 5px;
 }
 
@@ -177,12 +177,12 @@
 
 .cards__item.active .not-found {
   opacity: 0;
-  transition: opacity 250ms linear;
+  transition: opacity $duration linear;
 }
 
 .cards__item .not-found {
   opacity: 1;
-  transition: opacity 250ms linear;
+  transition: opacity $duration linear;
 }
 
 @keyframes card-loader {

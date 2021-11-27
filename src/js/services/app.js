@@ -190,7 +190,7 @@ export default class Application {
 
   //Artem: fetch for details once films
 
-  fetchFilmByID = async id => {
+  fetchMovieByID = async id => {
     const res = await fetch(
       `${this.#BASE_API_URL}/movie/${id}?api_key=${this.#API_KEY}&append_to_response=videos`,
     );
@@ -323,14 +323,14 @@ export default class Application {
       setTimeout(() => {
         this.refs.headerBottomContainer.innerHTML = '';
         res(true);
-      }, 250);
+      }, this.CSS.DELAY);
     });
     return promise;
   };
 
   // Паша Ш. Функция построена на промисах и возвращает промис, делает ряд последовательных действий:
   /*
-  очищает контейнер в хедере (250ms)
+  очищает контейнер в хедере (this.CSS.DELAYms)
   потом создает разментку и добавляет в дом.
   показывает контейрер
   */
@@ -342,7 +342,7 @@ export default class Application {
       setTimeout(() => {
         this.refs.cardsContainer.innerHTML = '';
         res(true);
-      }, 250);
+      }, this.CSS.DELAY);
     });
     return promise;
   };
@@ -502,6 +502,8 @@ export default class Application {
       };
     });
   };
+
+  onloadImage = () => {};
 
   showImage = (image, liRef) => {
     image.addEventListener(
@@ -770,55 +772,76 @@ export default class Application {
   };
 
   // Artem: function for listener function
+
+  renderMovieDetails = data => {
+    const normalizeData = { ...data, ...this.spriteUrl };
+
+    const movieMarkup = this.makeMovieDetails(normalizeData);
+    this.refs.cardModalContent.innerHTML = movieMarkup;
+    this.refs.cardModal.classList.remove(this.CSS.IS_HIDDEN);
+  };
+
   onCardsClick = e => {
     e.preventDefault();
-    const id = e.target.closest('li').dataset.id;
-    const forShowTampl = e.target.classList.contains('cards__list');
-    if (forShowTampl) {
+
+    if (e.target.closest('ul') !== e.currentTarget || e.target === e.currentTarget) {
       return;
     }
 
-    this.openShowModal();
+    const currentId = e.target.closest('li').dataset.id;
 
-    this.fetchFilmByID(id)
-      .then(data => this.onceFilmRender(data))
+    this.fetchMovieByID(currentId)
+      .then(data => {
+        this.renderMovieDetails(data);
+
+        this.refs.cardModal.addEventListener('click', this.onModalClick);
+        window.addEventListener('keydown', this.onEscapeClick);
+        document.body.classList.add(this.CSS.LOCK);
+
+        // vadim
+        this.addEventListenerOnBtnWatchedQueue();
+      })
       .catch(error => {
         console.log(error);
       });
   };
 
-  // Artem: methods open-close modal close
-
-  onceFilmRender = data => {
-    const markup = this.makeMovieDetails(data);
-    this.refs.cardModal.innerHTML = markup;
-    // Добавляет слушателя на кнопки "addToWatched", "addToQueue" при открытии модального окна
-    this.addEventListenerOnBtnWatchedQueue();
-    //
-    const btnCloseModal = document.querySelector('.card-modal__button');
-    btnCloseModal.addEventListener('click', this.closeShowModal);
-    return;
+  closeModal = () => {
+    window.removeEventListener('keydown', this.onEscapeClick);
+    this.refs.cardModal.classList.add('is-hidden');
+    document.body.classList.remove(this.CSS.LOCK);
   };
+
+  onEscapeClick = event => {
+    if (event.code === 'Escape') {
+      this.closeModal();
+    }
+  };
+
+  onModalClick = e => {
+    if (
+      !(
+        e.target.classList.contains('card-modal__overlay') ||
+        e.target.closest('button[data-action="close-card-modal"]')
+      )
+    ) {
+      return;
+    }
+
+    this.closeModal();
+  };
+
+  // Artem: methods open-close modal close
 
   openShowModal = e => {
     window.addEventListener('keydown', this.closeByEsc);
     this.refs.cardModal.classList.remove('is-hidden');
   };
 
-  closeShowModal = () => {
-    window.removeEventListener('keydown', this.closeByEsc);
-    this.refs.cardModal.classList.add('is-hidden');
-  };
-
-  closeByEsc = event => {
-    if (event.code === 'Escape') {
-      this.closeShowModal();
-    }
-  };
-
   modalOverflow = () => {
     this.refs.jsDevsModal.classList.add('js-open-modal');
   };
+
   closeModalWindow = () => {
     this.refs.jsDevsModal.classList.remove('js-open-modal');
   };
@@ -826,7 +849,7 @@ export default class Application {
   // ====================== Vadym =================================
 
   addEventListenerOnBtnWatchedQueue = () => {
-    const cartModalBtnList = document.querySelector('.card__btn-list');
+    const cartModalBtnList = document.querySelector('.movie-card__btn-list');
     cartModalBtnList.addEventListener('click', this.sortMovieListByUser);
   };
 
@@ -856,7 +879,7 @@ export default class Application {
       return;
     }
 
-    this.fetchFilmByID(movieId).then(data => {
+    this.fetchMovieByID(movieId).then(data => {
       const normalizedResults = this.normalizedDataToLocaleStorage(data);
       showAlert('Вітаємо', 'Цей фільм був успішно додано до Вашої бібліотеки у розділ "Watched"');
       this.listMovietoWatched.push(normalizedResults);
@@ -877,7 +900,7 @@ export default class Application {
       return;
     }
 
-    this.fetchFilmByID(movieId).then(data => {
+    this.fetchMovieByID(movieId).then(data => {
       const normalizedResults = this.normalizedDataToLocaleStorage(data);
       showAlert('Вітаємо', 'Цей фільм був успішно додано до Вашої бібліотеки у розділ "Queue"');
       this.listMovietoQueue.push(normalizedResults);

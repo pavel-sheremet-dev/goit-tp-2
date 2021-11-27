@@ -10,7 +10,7 @@
   padding-bottom: 20px;
   opacity: 1;
   background-color: rgba(0, 0, 0, 0.5);
-  transition: opacity 250ms linear;
+  transition: opacity $duration linear;
 }
 
 .card-modal.is-hidden {
@@ -19,12 +19,13 @@
 }
 
 .card-modal__overlay {
-  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: scroll;
   position: fixed;
-  width: 100%;
-  height: 100%;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  width: 100vw;
+  height: 100vh;
 }
 
 .movie-card {
@@ -49,13 +50,13 @@
 
 .movie-card__close-icon {
   stroke: $main-text-color;
-  transition: stroke 250ms linear;
+  transition: stroke $duration linear;
 }
 
 .movie-card__close-icon:hover,
 .movie-card__close-icon:focus {
   stroke: $main-brand-color;
-  transition: stroke 250ms linear;
+  transition: stroke $duration linear;
 }
 
 /* ===================== */
@@ -164,7 +165,7 @@
   font-weight: 500;
   font-size: 12px;
   line-height: 1.33;
-  transition: background-color 250ms linear, color 150ms linear, border 250ms linear;
+  transition: background-color $duration linear, color 150ms linear, border $duration linear;
 }
 
 .movie-card__btn:hover,

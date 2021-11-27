@@ -42,7 +42,7 @@
   }
 
   opacity: 0;
-  transition: opacity 250ms linear;
+  transition: opacity $duration linear;
 }
 
 .header.library::before {
@@ -97,7 +97,7 @@
   border: none;
   text-transform: uppercase;
   cursor: pointer;
-  transition: color 250ms linear;
+  transition: color $duration linear;
 }
 
 .nav-menu__btn:hover {
@@ -114,7 +114,7 @@
   height: 3px;
   background-color: $main-brand-color;
   transform: scaleX(0);
-  transition: transform 250ms linear;
+  transition: transform $duration linear;
 }
 
 .accent.nav-menu__btn::after {
@@ -130,7 +130,7 @@
   position: relative;
   overflow: hidden;
   opacity: 1;
-  transition: opacity 250ms linear;
+  transition: opacity $duration linear;
 }
 
 .header__bottom.is-hidden {
@@ -139,7 +139,7 @@
 
 .header__form-container {
   opacity: 1;
-  transition: opacity 250ms linear;
+  transition: opacity $duration linear;
 }
 
 // .header.home .header__form-container {
@@ -158,7 +158,7 @@
   line-height: 1.14;
   color: $secondary-text-color;
   border-bottom: 1px solid $secondary-text-color;
-  transition: border-color 250ms linear;
+  transition: border-color $duration linear;
 }
 
 .search-form__input:focus {
@@ -201,7 +201,7 @@
   font-size: 14px;
   line-height: 1.14;
   opacity: 1;
-  transition: opacity 250ms linear;
+  transition: opacity $duration linear;
 }
 
 .homepage__notification.is-hidden {
@@ -215,7 +215,7 @@
   padding-top: 5px;
 
   opacity: 1;
-  transition: opacity 250ms linear;
+  transition: opacity $duration linear;
 }
 
 // .header.library .my-library__list {
@@ -238,7 +238,7 @@
   text-transform: uppercase;
   background-color: transparent;
   color: $secondary-text-color;
-  transition: border-color 250ms linear, background-color 250ms linear;
+  transition: border-color $duration linear, background-color $duration linear;
 }
 
 .my-library__btn:hover,
