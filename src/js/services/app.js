@@ -435,8 +435,8 @@ export default class Application {
     const localStorageInfo = this.loadInfoFromLocalStorage(key);
 
     this.getTotalPages(localStorageInfo);
-    const libraryContainerMessage = document.querySelector('.my-library__container');
-    if (!this.total_pages && !libraryContainerMessage) {
+    const libraryMessage = document.querySelector('.my-library__description');
+    if (!this.total_pages && !libraryMessage) {
       this.refs.cardsContainer.insertAdjacentHTML('beforebegin', this.makeLibraryMessage());
 
       return;
@@ -672,9 +672,9 @@ export default class Application {
       this.path = this.getTopRatedPath();
       this.getMovies(this.path);
 
-      const libraryContainerMessage = document.querySelector('.my-library__container');
-      if (libraryContainerMessage) {
-        libraryContainerMessage.remove();
+      const libraryMessage = document.querySelector('.my-library__description');
+      if (libraryMessage) {
+        libraryMessage.remove();
       }
 
       return;
@@ -767,9 +767,9 @@ export default class Application {
   onLibraryBtnsClick = e => {
     const queueBtn = document.querySelector(this.refs.queueBtnSelector);
     const watchedBtn = document.querySelector(this.refs.watchedBtnSelector);
-    const libraryContainerMessage = document.querySelector('.my-library__container');
-    if (libraryContainerMessage) {
-      libraryContainerMessage.remove();
+    const libraryMessage = document.querySelector('.my-library__description');
+    if (libraryMessage) {
+      libraryMessage.remove();
     }
 
     if (
