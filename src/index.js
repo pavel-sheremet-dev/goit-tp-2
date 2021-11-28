@@ -9,6 +9,7 @@ import getRefs from './js/data/references';
 import CSS from './js/data/css';
 import spriteUrl from './images/sprite.svg';
 import brokenImgUrl from './images/broken.png';
+import { loadSpinner, windowSpinner, anchorSpinner } from './js/vendors/spinner';
 // import {dataCreate, getGenres} from '../src/js/data/workWithGenres';
 
 const refs = getRefs();
@@ -22,6 +23,9 @@ const options = {
   CSS,
   spriteUrl,
   brokenImgUrl,
+  loadSpinner,
+  windowSpinner,
+  anchorSpinner,
 };
 
 const app = new Application(options);

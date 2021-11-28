@@ -8,14 +8,14 @@ $main-text-color: #000000;
 $secondary-text-color: #ffffff;
 $footer-text-color: #545454;
 $alert-text-color: #ff001b;
-$modal-text-color:  #8C8C8C;
+$modal-text-color: #8c8c8c;
 
 //placeholder
 
 $placeholder-color: rgba(255, 255, 255, 0.5);
 
 // transition
-$duration: 250ms;
+$duration: 200ms;
 $cubic-bezier: cubic-bezier(0.4, 0, 0.2, 1);
 
 // brand-colors
@@ -26,4 +26,4 @@ $logo: #818181;
 
 // backdrop
 $light-backdrop: rgba(0, 0, 0, 0.25);
-$loader-backdrop: rgba(0, 0, 0, 0.6);
+$loader-backdrop: rgba(0, 0, 0, 0.8);
