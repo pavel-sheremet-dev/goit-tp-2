@@ -888,15 +888,18 @@ export default class Application {
 
     const includeIdOnLibraryToQueue = this.includesMovieOnLibrary(movieId, this.key.queue);
     if (includeIdOnLibraryToWatched) {
-      refs.addMovieToWatchedBtn.textContent = 'ADDED TO WATCHED';
-      refs.addMovieToWatchedBtn.style.backgroundColor = '#ff6b08';
+      this.switchBtntoAdded(refs.addMovieToWatchedBtn);
     }
     if (includeIdOnLibraryToQueue) {
-      refs.addMovieToQueueBtn.textContent = 'ADDED TO QUEUE';
-      refs.addMovieToQueueBtn.style.backgroundColor = '#ff6b08';
+      this.switchBtntoAdded(refs.addMovieToQueueBtn);
     }
 
     refs.cartModalBtnList.addEventListener('click', this.sortMovieListByUser);
+  };
+
+  switchBtntoAdded = btnRef => {
+    btnRef.textContent = 'ADDED TO WATCHED';
+    this.accentEl(btnRef);
   };
 
   sortMovieListByUser = e => {
@@ -907,10 +910,14 @@ export default class Application {
 
     if (eventTargetDataset === 'add-to-watched') {
       this.addMovieToWatched(movieID, btnKey);
+
+      this.switchBtntoAdded(e.target);
     }
 
     if (eventTargetDataset === 'add-to-queue') {
       this.addMovieToQueue(movieID, btnKey);
+
+      this.switchBtntoAdded(e.target);
     }
   };
 
