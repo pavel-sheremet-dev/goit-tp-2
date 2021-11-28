@@ -1,8 +1,17 @@
 {{#each this}}
-  <li class='cards__item' data-id='{{id}}'>
+  <li class='cards__item active' data-id='{{id}}'>
     <a href='#' class='cards__link link'>
-      <div class='cards__loader'></div>
-      <img class='cards__img' src='{{img}}' alt='постер фильма {{title}}' loading='lazy' />
+      <div class='card__loader'></div>
+      <div class='cards__img-container'>
+        <img
+          class='cards__img is-hidden'
+          data-page='{{currentPage}}'
+          src='{{img}}'
+          alt='movie poster {{title}}'
+          loading='lazy'
+        />
+      </div>
+
       <h3 class='cards__title'>{{title}}</h3>
       <p class='cards__genres'>{{#each genres}}{{this.name}}{{#unless @last}},{{/unless}}
         {{/each}}

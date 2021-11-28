@@ -1,51 +1,89 @@
-.footer{
-position: fixed;
-bottom: 0;
-background-color: bisque;
-height: 50px;
-left: 50%;
-transform: translateX(-50%);
-}
-.heart{
-    width: 25px;
-    height: 25px;
-animation-name: heart-beat;
-animation-duration: 1s;
-   animation-iteration-count: 999;
-   animation-direction: alternate-reverse;
-   fill: #ff6b08;
+.footer {
+  position: fixed;
+  z-index: 7;
+  bottom: 0;
+  background-color: #f7f7f7;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-@keyframes heart-beat{
-    0% {
-        transform: scale(1);
-      }
-      30%{
-          fill: pink
-      }
-    //   70%{
-    //       fill: red;
-    //   }
-    
-      100% {
-        transform: scale(1.3);
-      }
+.footer__container {
+  width: 100vw;
+  text-align: center;
+  margin-top: 28px;
+  margin-bottom: 28px;
 }
 
-.footer__container{
-    margin-top: 10px;
-    display: flex;
-    justify-content: center;
+.footer__small,
+.footer__devs-link {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: calc(16.5 / 14);
+  color: #545454;
 }
-.margin{
-    margin-left: 10px;
+
+.footer__small--hr {
+  display: block;
+  margin-bottom: 10px;
 }
-.footer__devs{
-    display: flex;
-    align-items: center;
-    
+
+.footer__heart {
+  margin: 0 10px;
+  animation-name: heart-beat;
+  animation-duration: 1s;
+  animation-iteration-count: 999;
+  animation-direction: alternate-reverse;
+  fill: $main-brand-color;
 }
-.footer__copyrigth{
-    display: flex;
-    align-items: center;
+
+@keyframes heart-beat {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    fill: pink;
+  }
+
+  100% {
+    transform: scale(1.3);
+  }
+}
+
+// @keyframes heart-beat {
+//   0% {
+//     transform: scale(1);
+//   }
+//   100% {
+//     transform: scale(1.2);
+//   }
+// }
+
+.footer__devs-link {
+  display: inline-block;
+}
+
+@media screen and (min-width: 480px) {
+  .footer__container {
+    width: 480px;
+    margin-top: 28px;
+    margin-bottom: 28px;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .footer__container {
+    width: 768px;
+  }
+
+  .footer__small--hr {
+    display: inline-block;
+    margin-bottom: 0;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .footer__container {
+    width: 1024px;
+  }
 }
