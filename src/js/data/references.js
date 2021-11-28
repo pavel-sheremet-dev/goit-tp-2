@@ -15,10 +15,9 @@ export default () => {
     loadMoreBtn: document.querySelector('.js-loadmore-btn'),
     loadMoreAnchor: document.querySelector('.js-loadmore-anchor'),
     cardModal: document.querySelector('.js-card-modal'),
-    addToWatchedBtn: document.querySelector('button[data-action="add-to-watched"]'),
-    addToQueueBtn: document.querySelector('button[data-action="add-to-queue"]'),
     devsLink: document.querySelector('.js-devs-link'),
     devsModal: document.querySelector('.js-devs-modal'),
+    devsCloseBtn: document.querySelector('[data-action="close-devs-modal"]'),
     cardsTitle: document.querySelector('.cards__title'),
     cardModalContent: document.querySelector('.js-card-modal-content'),
     // selectors example
@@ -27,13 +26,12 @@ export default () => {
     formSelector: '#search-form',
     libraryBtnsSelector: '.js-library-btns',
     notificationElSelector: '.js-notification',
-    jsDevsModal: document.querySelector('.js-devs-modal'),
-    footerDevsLink: document.querySelector('.footer__devs-link'),
     clossModal: document.querySelector('.devs-modal__button'),
     loaderSpinner: document.querySelector('.loader-spinner'),
     loaderBackdrop: document.querySelector('.js-cards-list__loader'),
     windowLoaderBackdrop: document.querySelector('.js-loader-backdrop'),
     windowSpinner: document.querySelector('.window-spinner'),
     anchorSpinner: document.querySelector('.cards__loadmore-spinner'),
+    topScroll: document.querySelector('.js-top-scroll'),
   };
 };

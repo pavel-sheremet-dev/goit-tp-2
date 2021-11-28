@@ -29,6 +29,7 @@ export default class Application {
     this.makeMovieDetails = makeMovieDetails;
     this.makeHeaderForm = makeHeaderForm;
     this.makeLibraryBtns = makeLibraryBtns;
+    this.makeLibraryMessage = makeLibraryMessage;
     this.page = 1;
     this.total_pages = 0;
     this.refs = refs;
@@ -69,7 +70,7 @@ export default class Application {
     this.refs.navigation.addEventListener('click', this.onNavigationListClick);
     this.refs.form.addEventListener('submit', this.onSearchFormSubmit);
     this.getLoadMoreObserver();
-    this.refs.footerDevsLink.addEventListener('click', this.modalOverflow);
+    this.refs.devsLink.addEventListener('click', this.modalOverflow);
     this.refs.cardsContainer.addEventListener('click', this.onCardsClick);
     this.refs.logo.addEventListener('click', this.onLogoClick);
   };
@@ -438,7 +439,6 @@ export default class Application {
     const libraryMessage = document.querySelector('.my-library__description');
     if (!this.total_pages && !libraryMessage) {
       this.refs.cardsContainer.insertAdjacentHTML('beforebegin', this.makeLibraryMessage());
-
       return;
     }
 
@@ -632,9 +632,19 @@ export default class Application {
       return;
     }
     this.getMoreMovies(this.path);
+
+    // this.refs.topScroll.classList.add(this.CSS.ACTIVE);
+    // this.refs.topScroll.addEventListener('click', this.onTopClick);
   };
 
   /* ----------- END OBSERVER INFINITY SCROLL ------------ */
+
+  // onTopClick = () => {
+  //   this.refs.header.scrollIntoView({
+  //     behavior: 'smooth',
+  //     block: 'start',
+  //   });
+  // };
 
   // Паша Шеремет. Обработчик нажатия на кнопки HOME и Library
   /*
@@ -807,6 +817,10 @@ export default class Application {
     const movieMarkup = this.makeMovieDetails(normalizeData);
     this.refs.cardModalContent.innerHTML = movieMarkup;
     this.refs.cardModal.classList.remove(this.CSS.IS_HIDDEN);
+    const modalImage = this.refs.cardModalContent.querySelector('.movie-card__image');
+    const imageBox = modalImage.closest('div');
+    console.log(modalImage, imageBox);
+    this.showImage(modalImage, imageBox);
   };
 
   onCardsClick = e => {
@@ -816,15 +830,18 @@ export default class Application {
       return;
     }
 
+    this.showWindowLoader();
+
     const currentId = e.target.closest('li').dataset.id;
 
     this.fetchMovieByID(currentId)
       .then(data => {
         this.renderMovieDetails(data);
 
+        this.hideWindowLoader();
+
         this.refs.cardModal.addEventListener('click', this.onModalClick);
         window.addEventListener('keydown', this.onEscapeClick);
-        document.body.classList.add(this.CSS.LOCK);
 
         // vadim
         this.addEventListenerOnBtnWatchedQueue();
@@ -857,21 +874,32 @@ export default class Application {
     }
 
     this.closeModal();
+    setTimeout(() => {
+      this.refs.cardModalContent.innerHTML = '';
+    }, this.CSS.DELAY);
   };
-
-  // Artem: methods open-close modal close
 
   openShowModal = e => {
     window.addEventListener('keydown', this.closeByEsc);
     this.refs.cardModal.classList.remove('is-hidden');
   };
 
+  // Artem: methods open-close modal close
+
   modalOverflow = () => {
-    this.refs.jsDevsModal.classList.add('js-open-modal');
+    this.refs.devsModal.classList.add('js-open-modal');
+    this.refs.devsModal.addEventListener('click', this.closeModalWindow);
+    document.body.classList.add(this.CSS.LOCK);
   };
 
-  closeModalWindow = () => {
-    this.refs.jsDevsModal.classList.remove('js-open-modal');
+  closeModalWindow = e => {
+    this.refs.devsModal.classList.remove('js-open-modal');
+    if (e.target.closest('[data-action="close-devs-modal"]') !== this.refs.devsCloseBtn) {
+      return;
+    }
+
+    this.refs.devsModal.classList.remove('js-open-modal');
+    document.body.classList.remove(this.CSS.LOCK);
   };
 
   // ====================== Vadym =================================
@@ -888,15 +916,18 @@ export default class Application {
 
     const includeIdOnLibraryToQueue = this.includesMovieOnLibrary(movieId, this.key.queue);
     if (includeIdOnLibraryToWatched) {
-      refs.addMovieToWatchedBtn.textContent = 'ADDED TO WATCHED';
-      refs.addMovieToWatchedBtn.style.backgroundColor = '#ff6b08';
+      this.switchBtntoAdded(refs.addMovieToWatchedBtn);
     }
     if (includeIdOnLibraryToQueue) {
-      refs.addMovieToQueueBtn.textContent = 'ADDED TO QUEUE';
-      refs.addMovieToQueueBtn.style.backgroundColor = '#ff6b08';
+      this.switchBtntoAdded(refs.addMovieToQueueBtn);
     }
 
     refs.cartModalBtnList.addEventListener('click', this.sortMovieListByUser);
+  };
+
+  switchBtntoAdded = btnRef => {
+    btnRef.textContent = 'ADDED TO WATCHED';
+    this.accentEl(btnRef);
   };
 
   sortMovieListByUser = e => {
@@ -907,10 +938,14 @@ export default class Application {
 
     if (eventTargetDataset === 'add-to-watched') {
       this.addMovieToWatched(movieID, btnKey);
+
+      this.switchBtntoAdded(e.target);
     }
 
     if (eventTargetDataset === 'add-to-queue') {
       this.addMovieToQueue(movieID, btnKey);
+
+      this.switchBtntoAdded(e.target);
     }
   };
 

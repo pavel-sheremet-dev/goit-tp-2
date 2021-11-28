@@ -6,6 +6,10 @@ body {
   background-attachment: fixed;
 }
 
+body.is-lock {
+  overflow: hidden;
+}
+
 .body-frame {
   position: fixed;
   z-index: -1;

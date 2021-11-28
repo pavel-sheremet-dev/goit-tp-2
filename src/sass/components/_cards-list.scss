@@ -34,8 +34,8 @@
 }
 
 .cards__img-container {
-  background-color: rgba(0, 0, 0, 1);
-  background-image: url(../images/img-background.svg);
+  background-color: rgba(0, 0, 0, 0.1);
+  background-image: url(../images/body-bg.svg);
   width: 100%;
   height: calc((100vw - 40px) * 1.43);
   margin-bottom: 10px;
@@ -165,11 +165,12 @@
   height: 80px;
   border-radius: 50%;
   border: 2px solid transparent;
-  border-top-color: $secondary-text-color;
+  border-top-color: $main-brand-color;
   opacity: 0;
 }
 
-.cards__item.active .card__loader {
+.cards__item.active .card__loader,
+.movie-card__img-wrapper.active .card__loader {
   z-index: 1;
   animation: card-loader 1s ease infinite;
   opacity: 0.7;
@@ -193,3 +194,44 @@
     transform: rotate(1turn) translate(-50%, -50%);
   }
 }
+
+// .top-scroll {
+//   position: fixed;
+//   bottom: 115px;
+//   left: 50%;
+//   transform: translateX(calc(-50% + (100vw / 2 - 60px)));
+//   z-index: 10;
+//   width: 60px;
+//   height: 60px;
+//   border-radius: 50%;
+//   border: none;
+//   color: $secondary-text-color;
+//   background-color: $main-brand-color;
+//   opacity: 0;
+//   transition: opacity 250ms linear;
+//   pointer-events: none;
+// }
+
+// .top-scroll.active {
+//   opacity: 1;
+//   pointer-events: visible;
+// }
+
+// @media screen and (min-width: 480px) {
+//   .top-scroll {
+//     transform: translateX(calc(-50% + (480px / 2 - 50px)));
+//   }
+// }
+
+// @media screen and (min-width: 768px) {
+//   .top-scroll {
+//     bottom: 90px;
+//     transform: translateX(calc(-50% + (768px / 2 - 50px)));
+//   }
+// }
+
+// @media screen and (min-width: 768px) {
+//   .top-scroll {
+//     transform: translateX(calc(-50% + (1024px / 2 - 50px)));
+//   }
+// }
