@@ -35,5 +35,6 @@ export default () => {
     windowLoaderBackdrop: document.querySelector('.js-loader-backdrop'),
     windowSpinner: document.querySelector('.window-spinner'),
     anchorSpinner: document.querySelector('.cards__loadmore-spinner'),
+    topScroll: document.querySelector('.js-top-scroll'),
   };
 };

@@ -23,11 +23,13 @@ export default class Application {
     loadSpinner,
     windowSpinner,
     anchorSpinner,
+    makeLibraryMessage,
   }) {
     this.makeMoviesCards = makeMoviesCards;
     this.makeMovieDetails = makeMovieDetails;
     this.makeHeaderForm = makeHeaderForm;
     this.makeLibraryBtns = makeLibraryBtns;
+    this.makeLibraryMessage = makeLibraryMessage;
     this.page = 1;
     this.total_pages = 0;
     this.refs = refs;
@@ -279,20 +281,20 @@ export default class Application {
     this.accentEl(this.refs.homeBtn);
     this.clearAccent(this.refs.myLibraryBtn);
     this.showHomepageBackground();
-      this.renderHeaderMarkup(this.makeHeaderForm, this.spriteUrl).then(() => {
-        const formRef = document.querySelector(this.refs.formSelector);
-        this.notificationEl = document.querySelector(this.refs.notificationElSelector);
+    this.renderHeaderMarkup(this.makeHeaderForm, this.spriteUrl).then(() => {
+      const formRef = document.querySelector(this.refs.formSelector);
+      this.notificationEl = document.querySelector(this.refs.notificationElSelector);
 
-        formRef.addEventListener('submit', this.onSearchFormSubmit);
-      });
+      formRef.addEventListener('submit', this.onSearchFormSubmit);
+    });
 
-      this.resetPage();
-      this.unObserveLoadMoreAnchor();
+    this.resetPage();
+    this.unObserveLoadMoreAnchor();
 
-      this.path = this.getTopRatedPath();
-      this.getMovies(this.path);
+    this.path = this.getTopRatedPath();
+    this.getMovies(this.path);
 
-      return;
+    return;
   };
   // нужно для отображения подходящего бекграунта
 
@@ -435,7 +437,7 @@ export default class Application {
     this.getTotalPages(localStorageInfo);
 
     if (!this.total_pages) {
-      this.refs.cardsContainer.innerHTML = `<p class="my-library__description">В даному розділі фільми відсутні!</p>`;
+      this.refs.cardsContainer.innerHTML = this.makeLibraryMessage();
       return;
     }
 
@@ -629,9 +631,19 @@ export default class Application {
       return;
     }
     this.getMoreMovies(this.path);
+
+    // this.refs.topScroll.classList.add(this.CSS.ACTIVE);
+    // this.refs.topScroll.addEventListener('click', this.onTopClick);
   };
 
   /* ----------- END OBSERVER INFINITY SCROLL ------------ */
+
+  // onTopClick = () => {
+  //   this.refs.header.scrollIntoView({
+  //     behavior: 'smooth',
+  //     block: 'start',
+  //   });
+  // };
 
   // Паша Шеремет. Обработчик нажатия на кнопки HOME и Library
   /*

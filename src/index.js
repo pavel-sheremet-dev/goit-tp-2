@@ -11,6 +11,7 @@ import spriteUrl from './images/sprite.svg';
 import brokenImgUrl from './images/broken.png';
 import { loadSpinner, windowSpinner, anchorSpinner } from './js/vendors/spinner';
 // import {dataCreate, getGenres} from '../src/js/data/workWithGenres';
+import makeLibraryMessage from './templating/libraryMessage.hbs';
 
 const refs = getRefs();
 
@@ -26,6 +27,7 @@ const options = {
   loadSpinner,
   windowSpinner,
   anchorSpinner,
+  makeLibraryMessage,
 };
 
 const app = new Application(options);
