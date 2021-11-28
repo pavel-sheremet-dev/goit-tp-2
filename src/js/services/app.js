@@ -54,6 +54,7 @@ export default class Application {
       queue: 'queue',
     };
     this.isMyLibrary = false;
+    this.makeLibraryMessage = makeLibraryMessage;
   }
   // пример использование функции по работе с жанрами и годом в запросе топ фильмов
   // fetch(".......").then(res=>res.json()).then(films => {
@@ -435,9 +436,9 @@ export default class Application {
     const localStorageInfo = this.loadInfoFromLocalStorage(key);
 
     this.getTotalPages(localStorageInfo);
-
-    if (!this.total_pages) {
-      this.refs.cardsContainer.innerHTML = this.makeLibraryMessage();
+    const libraryMessage = document.querySelector('.my-library__description');
+    if (!this.total_pages && !libraryMessage) {
+      this.refs.cardsContainer.insertAdjacentHTML('beforebegin', this.makeLibraryMessage());
       return;
     }
 
@@ -681,6 +682,11 @@ export default class Application {
       this.path = this.getTopRatedPath();
       this.getMovies(this.path);
 
+      const libraryMessage = document.querySelector('.my-library__description');
+      if (libraryMessage) {
+        libraryMessage.remove();
+      }
+
       return;
     }
 
@@ -771,6 +777,10 @@ export default class Application {
   onLibraryBtnsClick = e => {
     const queueBtn = document.querySelector(this.refs.queueBtnSelector);
     const watchedBtn = document.querySelector(this.refs.watchedBtnSelector);
+    const libraryMessage = document.querySelector('.my-library__description');
+    if (libraryMessage) {
+      libraryMessage.remove();
+    }
 
     if (
       (e.target !== queueBtn && e.target !== watchedBtn) ||
