@@ -34,8 +34,8 @@
 }
 
 .cards__img-container {
-  background-color: rgba(0, 0, 0, 1);
-  background-image: url(../images/img-background.svg);
+  background-color: rgba(0, 0, 0, 0.1);
+  background-image: url(../images/body-bg.svg);
   width: 100%;
   height: calc((100vw - 40px) * 1.43);
   margin-bottom: 10px;
@@ -165,11 +165,12 @@
   height: 80px;
   border-radius: 50%;
   border: 2px solid transparent;
-  border-top-color: $secondary-text-color;
+  border-top-color: $main-brand-color;
   opacity: 0;
 }
 
-.cards__item.active .card__loader {
+.cards__item.active .card__loader,
+.movie-card__img-wrapper.active .card__loader {
   z-index: 1;
   animation: card-loader 1s ease infinite;
   opacity: 0.7;

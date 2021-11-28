@@ -5,11 +5,11 @@
     </svg>
   </button>
   <div class='movie-card__box'>
-    <div class='movie-card__img-wrapper'><img
-        class='movie-card__image'
-        src='https://image.tmdb.org/t/p/w500{{poster_path}}'
-        alt=''
-      /></div>
+
+    <div class='movie-card__img-wrapper active'>
+      <div class='card__loader'></div>
+      <img class='movie-card__image is-hidden' src='{{img}}' alt='Movie poster {{title}}' />
+    </div>
 
     <div class='movie-card__side-b'>
       <h3 class='movie-card__title'>{{title}} </h3>
@@ -44,7 +44,7 @@
           </li>
           <li class='stats-list__item stats-list__item-gen'>
             {{#each genres}}
-              {{this}}{{#unless @last}},{{/unless}} 
+              {{this}}{{#unless @last}},{{/unless}}
             {{/each}}
           </li>
         </ul>
