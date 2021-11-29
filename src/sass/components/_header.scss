@@ -239,6 +239,7 @@
   background-color: transparent;
   color: $secondary-text-color;
   transition: border-color $duration linear, background-color $duration linear;
+  cursor: pointer;
 }
 
 .my-library__btn:hover,
@@ -249,6 +250,12 @@
 .my-library__btn.accent {
   background-color: $main-brand-color;
   border-color: $main-brand-color;
+}
+
+.my-library__btn.accent:hover,
+.my-library__btn.accent:focus {
+  background-color: $accent-brand-color;
+  border-color: $accent-brand-color;
 }
 
 @media screen and (min-width: 768px) {

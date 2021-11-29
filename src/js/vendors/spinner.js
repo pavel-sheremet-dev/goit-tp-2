@@ -25,8 +25,8 @@ const loadSpinner = new Spinner({
 
 const windowSpinner = new Spinner({
   lines: 11,
-  length: 10,
-  width: 1,
+  length: 0,
+  width: 5,
   radius: 12,
   scale: 2.0,
   corners: 1,
@@ -36,7 +36,7 @@ const windowSpinner = new Spinner({
   rotate: 0,
   direction: 1,
   speed: 1,
-  zIndex: 2e9,
+  zIndex: 5,
   className: 'spinner',
   top: '50%',
   left: '50%',
