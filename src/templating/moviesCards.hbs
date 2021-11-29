@@ -18,6 +18,9 @@
         |
         {{year}}<span class='cards__rating'>{{vote_average}}</span>
       </p>
+      {{#if inLibrary}}
+        <button type='button' class='cards__btn-remove'>remove movie</button>
+      {{/if}}
     </a>
   </li>
 {{/each}}

@@ -90,6 +90,29 @@
   // text-align: center;
 }
 
+.cards__btn-remove {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 10px 10px 8px 10px;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.17;
+  box-shadow: 3px 3px 4px -1px rgba(0, 0, 0, 0.3);
+  text-transform: uppercase;
+  color: $secondary-text-color;
+  background-color: $main-brand-color;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color $duration linear;
+}
+
+.cards__btn-remove:hover,
+.cards__btn-remove:focus {
+  background-color: $accent-brand-color;
+}
+
 @media screen and (min-width: 480px) {
   .cards__item {
     width: 350px;
@@ -197,9 +220,9 @@
 
 .top-scroll {
   position: fixed;
-  bottom: 9%;
-  left: 57%;
-  transform: translateX(calc(-50% + (100vw / 2 - 60px)));
+  bottom: 55px;
+  left: 50%;
+  transform: translateX(calc(-50% + (100vw / 2 - 50px)));
   z-index: 10;
   width: 40px;
   height: 40px;
@@ -216,7 +239,7 @@
   font-size: 30px;
   text-align: center;
   text-decoration: none;
-
+  -webkit-appearance: none;
 }
 
 .top-scroll.active {
@@ -226,22 +249,20 @@
 
 @media screen and (min-width: 480px) {
   .top-scroll {
-    transform: translateX(calc(-50% + (480px / 2 - 50px)));
-    bottom: 10%;
-    left: 52%;
+    transform: translateX(calc(-50% + (480px / 2 - 35px)));
   }
 }
 
 @media screen and (min-width: 768px) {
   .top-scroll {
-    bottom: 85px;
-    left: 51%;
-    transform: translateX(calc(-50% + (768px / 2 - 50px)));
+    bottom: 65px;
+    transform: translateX(calc(-50% + (768px / 2 - 40px)));
   }
 }
 
 @media screen and (min-width: 1024px) {
   .top-scroll {
-    transform: translateX(calc(-50% + (1024px / 2 - 50px)));
+    bottom: 65px;
+    transform: translateX(calc(-50% + (1024px / 2 - 40px)));
   }
 }

@@ -54,12 +54,22 @@
       <p class='movie-description'>{{overview}}</p>
       <ul class='movie-card__btn-list list' data-id='{{id}}'>
         <li class='movie-card__btn-item'>
-          <button type='button' class='movie-card__btn' data-action='add-to-watched'>
+          <button
+            type='button'
+            class='movie-card__btn'
+            data-action='add-to-library'
+            data-key='watched'
+          >
             ADD TO WATCHED
           </button>
         </li>
         <li class='movie-card__btn-item'>
-          <button type='button' class='movie-card__btn' data-action='add-to-queue'>ADD TO QUEUE</button>
+          <button
+            type='button'
+            class='movie-card__btn'
+            data-action='add-to-library'
+            data-key='queue'
+          >ADD TO QUEUE</button>
         </li>
       </ul>
     </div>
