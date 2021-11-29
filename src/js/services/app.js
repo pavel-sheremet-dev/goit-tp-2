@@ -69,6 +69,7 @@ export default class Application {
     this.refs.devsLink.addEventListener('click', this.modalOverflow);
     this.refs.cardsContainer.addEventListener('click', this.onCardsClick);
     this.refs.logo.addEventListener('click', this.onLogoClick);
+    this.refs.topScroll.addEventListener('click',this.onTopClick);
   };
 
   init = () => {
@@ -289,9 +290,13 @@ export default class Application {
 
     this.resetPage();
     this.unObserveLoadMoreAnchor();
-
+    this.refs.topScroll.classList.add(this.CSS.ACTIVE);
     this.path = this.getTopRatedPath();
     this.getMovies(this.path);
+    const libraryMessage = document.querySelector('.my-library__description');
+      if (libraryMessage) {
+        libraryMessage.remove();
+      }
 
     return;
   };
@@ -591,6 +596,7 @@ export default class Application {
     this.path = this.getTopRatedPath();
 
     this.getMovies(this.path);
+    this.refs.topScroll.classList.add(this.CSS.ACTIVE);
   };
 
   /* ----------- OBSERVER INFINITY SCROLL ------------ */
@@ -637,12 +643,12 @@ export default class Application {
 
   /* ----------- END OBSERVER INFINITY SCROLL ------------ */
 
-  // onTopClick = () => {
-  //   this.refs.header.scrollIntoView({
-  //     behavior: 'smooth',
-  //     block: 'start',
-  //   });
-  // };
+  onTopClick = () => {
+    this.refs.header.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  };
 
   // Паша Шеремет. Обработчик нажатия на кнопки HOME и Library
   /*
@@ -676,6 +682,7 @@ export default class Application {
 
       this.resetPage();
       this.unObserveLoadMoreAnchor();
+      this.refs.topScroll.classList.add(this.CSS.ACTIVE);
 
       this.path = this.getTopRatedPath();
       this.getMovies(this.path);
@@ -693,7 +700,7 @@ export default class Application {
       this.accentEl(e.target);
       this.clearAccent(this.refs.homeBtn);
       this.showLibraryBackground();
-
+      this.refs.topScroll.classList.remove(this.CSS.ACTIVE);
       this.resetPage();
       this.unObserveLoadMoreAnchor();
 

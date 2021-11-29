@@ -210,43 +210,53 @@
   }
 }
 
-// .top-scroll {
-//   position: fixed;
-//   bottom: 115px;
-//   left: 50%;
-//   transform: translateX(calc(-50% + (100vw / 2 - 60px)));
-//   z-index: 10;
-//   width: 60px;
-//   height: 60px;
-//   border-radius: 50%;
-//   border: none;
-//   color: $secondary-text-color;
-//   background-color: $main-brand-color;
-//   opacity: 0;
-//   transition: opacity 250ms linear;
-//   pointer-events: none;
-// }
+.top-scroll {
+  position: fixed;
+  bottom: 9%;
+  left: 57%;
+  transform: translateX(calc(-50% + (100vw / 2 - 60px)));
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  color: $secondary-text-color;
+  background-color: $main-brand-color;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms linear;
+  display: block;
+  cursor: pointer;
+  box-shadow: 0 4px 4px rgb(0 0 0 / 20%);
+  font-size: 30px;
+  text-align: center;
+  text-decoration: none;
 
-// .top-scroll.active {
-//   opacity: 1;
-//   pointer-events: visible;
-// }
+}
 
-// @media screen and (min-width: 480px) {
-//   .top-scroll {
-//     transform: translateX(calc(-50% + (480px / 2 - 50px)));
-//   }
-// }
+.top-scroll.active {
+  opacity: 1;
+  pointer-events: visible;
+}
 
-// @media screen and (min-width: 768px) {
-//   .top-scroll {
-//     bottom: 90px;
-//     transform: translateX(calc(-50% + (768px / 2 - 50px)));
-//   }
-// }
+@media screen and (min-width: 480px) {
+  .top-scroll {
+    transform: translateX(calc(-50% + (480px / 2 - 50px)));
+    bottom: 10%;
+    left: 52%;
+  }
+}
 
-// @media screen and (min-width: 768px) {
-//   .top-scroll {
-//     transform: translateX(calc(-50% + (1024px / 2 - 50px)));
-//   }
-// }
+@media screen and (min-width: 768px) {
+  .top-scroll {
+    bottom: 85px;
+    left: 51%;
+    transform: translateX(calc(-50% + (768px / 2 - 50px)));
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .top-scroll {
+    transform: translateX(calc(-50% + (1024px / 2 - 50px)));
+  }
+}
