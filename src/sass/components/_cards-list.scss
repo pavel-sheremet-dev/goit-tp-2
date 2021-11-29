@@ -90,6 +90,21 @@
   // text-align: center;
 }
 
+.cards__btn-remove {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 10px 10px 8px 10px;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.17;
+  text-transform: uppercase;
+  color: $secondary-text-color;
+  background-color: $main-brand-color;
+  border: none;
+  border-radius: 5px;
+}
+
 @media screen and (min-width: 480px) {
   .cards__item {
     width: 350px;

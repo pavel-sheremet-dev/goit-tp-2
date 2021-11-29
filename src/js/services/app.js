@@ -49,10 +49,6 @@ export default class Application {
     this.anchorSpinner = anchorSpinner;
     this.listMovietoWatched = [];
     this.listMovietoQueue = [];
-    this.key = {
-      watched: 'watched',
-      queue: 'queue',
-    };
     this.isMyLibrary = false;
     this.makeLibraryMessage = makeLibraryMessage;
   }
@@ -270,6 +266,8 @@ export default class Application {
       return {
         ...movie,
         currentPage: this.page,
+        vote_average: this.pad(movie.vote_average),
+        inLibrary: true,
       };
     });
   };
@@ -472,14 +470,14 @@ export default class Application {
     localStorage.setItem('button', BtnDataKey);
   };
 
-  getActiveLibraryBtn = () => {
+  getActiveLibraryBtn = btnsList => {
     const currentKey = localStorage.getItem('button');
     if (!currentKey) {
-      const defaultBtn = document.querySelector(this.refs.queueBtnSelector);
+      const defaultBtn = btnsList.querySelector(this.refs.queueBtnSelector);
       this.accentEl(defaultBtn);
       return defaultBtn;
     }
-    const currentKeyBtn = document.querySelector(`[data-key="${currentKey}"]`);
+    const currentKeyBtn = btnsList.querySelector(`[data-key="${currentKey}"]`);
     this.accentEl(currentKeyBtn);
     return currentKeyBtn;
   };
@@ -703,7 +701,7 @@ export default class Application {
         () => {
           const libraryBtns = document.querySelector(this.refs.libraryBtnsSelector);
 
-          const activeLibraryBtn = this.getActiveLibraryBtn();
+          const activeLibraryBtn = this.getActiveLibraryBtn(libraryBtns);
           this.currentLibraryKey = activeLibraryBtn.dataset.key;
           this.renderMyLibraryMovies(this.currentLibraryKey);
 
@@ -819,7 +817,7 @@ export default class Application {
     this.refs.cardModal.classList.remove(this.CSS.IS_HIDDEN);
     const modalImage = this.refs.cardModalContent.querySelector('.movie-card__image');
     const imageBox = modalImage.closest('div');
-    console.log(modalImage, imageBox);
+
     this.showImage(modalImage, imageBox);
   };
 
@@ -827,6 +825,11 @@ export default class Application {
     e.preventDefault();
 
     if (e.target.closest('ul') !== e.currentTarget || e.target === e.currentTarget) {
+      return;
+    }
+
+    if (e.target.classList.contains('cards__btn-remove')) {
+      this.removeCardfromList(e.target);
       return;
     }
 
@@ -849,6 +852,23 @@ export default class Application {
       .catch(error => {
         console.log(error);
       });
+  };
+
+  removeCardfromList = btn => {
+    const movieCard = btn.closest('.cards__item');
+    const currentKey = document.querySelector('.my-library__btn.accent').dataset.key;
+    const movieId = movieCard.dataset.id;
+    const movieStatus = this.checkIsIncludeMovieInLibrary(movieId, currentKey);
+    const dataToUpdate = this.loadInfoFromLocalStorage(currentKey);
+
+    dataToUpdate.splice(movieStatus.movieIndex, 1);
+    localStorage.setItem(currentKey, JSON.stringify(dataToUpdate));
+    movieCard.remove();
+
+    if (!dataToUpdate.length) {
+      this.refs.cardsContainer.insertAdjacentHTML('beforebegin', this.makeLibraryMessage());
+      return;
+    }
   };
 
   closeModal = () => {
@@ -907,103 +927,89 @@ export default class Application {
   addEventListenerOnBtnWatchedQueue = () => {
     const refs = {
       cartModalBtnList: document.querySelector('.movie-card__btn-list'),
-      addMovieToWatchedBtn: document.querySelector('[data-action="add-to-watched"]'),
-      addMovieToQueueBtn: document.querySelector('[data-action="add-to-queue"]'),
+      addMovieToLibraryBtns: document.querySelectorAll('[data-action="add-to-library"]'),
     };
 
     const movieId = refs.cartModalBtnList.dataset.id;
-    const includeIdOnLibraryToWatched = this.includesMovieOnLibrary(movieId, this.key.watched);
 
-    const includeIdOnLibraryToQueue = this.includesMovieOnLibrary(movieId, this.key.queue);
-    if (includeIdOnLibraryToWatched) {
-      this.switchBtntoAdded(refs.addMovieToWatchedBtn);
-    }
-    if (includeIdOnLibraryToQueue) {
-      this.switchBtntoAdded(refs.addMovieToQueueBtn);
-    }
+    refs.addMovieToLibraryBtns.forEach(btn => {
+      const isMovieOnLibraryData = this.checkIsIncludeMovieInLibrary(movieId, btn.dataset.key);
+      if (isMovieOnLibraryData.findedMovie) {
+        this.switchBtntoAdded(btn);
+      }
+    });
 
     refs.cartModalBtnList.addEventListener('click', this.sortMovieListByUser);
   };
 
   switchBtntoAdded = btnRef => {
-    btnRef.textContent = 'ADDED TO WATCHED';
+    const btnText = btnRef.textContent.trim();
+    const updateBtnText = btnText.split(' ');
+    updateBtnText[0] = 'ADDED';
+    btnRef.textContent = updateBtnText.join(' ');
     this.accentEl(btnRef);
+  };
+
+  switchBtntoDefault = btnRef => {
+    const btnText = btnRef.textContent.trim();
+    const updateBtnText = btnText.split(' ');
+    updateBtnText[0] = 'ADD';
+    btnRef.textContent = updateBtnText.join(' ');
+    this.clearAccent(btnRef);
+    btnRef.blur();
   };
 
   sortMovieListByUser = e => {
     const movieID = e.currentTarget.dataset.id;
+    const btnKey = e.target.dataset.key;
+    const movieStatus = this.checkIsIncludeMovieInLibrary(movieID, btnKey);
 
-    const eventTargetDataset = e.target.dataset.action;
-    const btnKey = this.keyGeneration(eventTargetDataset);
+    this.addMovieToLibraryData(movieID, btnKey, movieStatus);
 
-    if (eventTargetDataset === 'add-to-watched') {
-      this.addMovieToWatched(movieID, btnKey);
-
-      this.switchBtntoAdded(e.target);
+    if (movieStatus.findedMovie) {
+      this.switchBtntoDefault(e.target);
+      if (this.isMyLibrary) {
+        const movieCard = document.querySelector(`li[data-id="${movieID}"]`);
+        movieCard.remove();
+      }
+      return;
     }
-
-    if (eventTargetDataset === 'add-to-queue') {
-      this.addMovieToQueue(movieID, btnKey);
-
-      this.switchBtntoAdded(e.target);
-    }
+    this.switchBtntoAdded(e.target);
   };
 
-  addMovieToWatched = (movieId, btnKey) => {
-    const includeIdOnLibraryToWatched = this.includesMovieOnLibrary(movieId, btnKey);
-
-    if (includeIdOnLibraryToWatched) {
-      showAlert('Warning 🤔', 'This movie is already in your library!');
+  addMovieToLibraryData = (movieId, btnKey, movieStatus) => {
+    if (movieStatus.findedMovie) {
+      const dataToUpdate = this.loadInfoFromLocalStorage(btnKey);
+      dataToUpdate.splice(movieStatus.movieIndex, 1);
+      localStorage.setItem(btnKey, JSON.stringify(dataToUpdate));
       return;
     }
 
     this.fetchMovieByID(movieId).then(data => {
       const normalizedResults = this.normalizedDataToLocaleStorage(data);
-      showAlert(
-        'Congratulations 😄',
-        'This movie has been successfully added to your library under "Watched".',
-      );
-      this.listMovietoWatched.push(normalizedResults);
-      localStorage.setItem(btnKey, JSON.stringify(this.listMovietoWatched));
+      const dataToUpdate = [...this.loadInfoFromLocalStorage(btnKey), normalizedResults];
+
+      if (this.isMyLibrary) {
+        const cardMarkup = this.makeMoviesCards([normalizedResults]);
+        this.refs.cardsContainer.insertAdjacentHTML('beforeend', cardMarkup);
+        const cardImage = this.refs.cardsContainer.querySelector('.cards__img.is-hidden');
+        const cardItem = cardImage.closest('li');
+        this.showImage(cardImage, cardItem);
+      }
+
+      localStorage.setItem(btnKey, JSON.stringify(dataToUpdate));
     });
   };
 
-  addMovieToQueue = (movieId, btnKey) => {
-    const includeIdOnLibraryToQueue = this.includesMovieOnLibrary(movieId, btnKey);
-
-    if (includeIdOnLibraryToQueue) {
-      showAlert('Warning 🤔', 'This movie is already in your library!');
-      return;
-    }
-
-    this.fetchMovieByID(movieId).then(data => {
-      const normalizedResults = this.normalizedDataToLocaleStorage(data);
-      showAlert(
-        'Congratulations 😄',
-        'This movie has been successfully added to your library under "Queue".',
-      );
-      this.listMovietoQueue.push(normalizedResults);
-      localStorage.setItem(this.key.queue, JSON.stringify(this.listMovietoQueue));
-    });
+  checkIsIncludeMovieInLibrary = (id, key) => {
+    const moviesFromLocalStorage = this.loadInfoFromLocalStorage(key);
+    const moviesIds = moviesFromLocalStorage.map(movie => movie.id);
+    return {
+      findedMovie: moviesIds.includes(Number(id)),
+      movieIndex: moviesIds.indexOf(Number(id)),
+    };
   };
-  includesMovieOnLibrary = (id, key) => {
-    const dataJSON = this.loadInfoFromLocalStorage(key);
-    let dataJSONMap = [];
 
-    if (dataJSON !== null) {
-      dataJSONMap = dataJSON.map(result => result.id);
-    }
-    return dataJSONMap.includes(Number(id));
-  };
-  keyGeneration = key => {
-    if (key === 'add-to-watched') {
-      key = this.key.watched;
-    }
-    if (key === 'add-to-queue') {
-      key = this.key.queue;
-    }
-    return key;
-  };
   //========== Нормализация перед localeStorage ==========
 
   normalizedDataToLocaleStorage = obj => {
