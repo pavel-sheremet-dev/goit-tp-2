@@ -1012,11 +1012,10 @@ export default class Application {
       }
       return;
     }
+    const libraryMessage = this.getElement('.my-library__description');
+    if (this.isMyLibrary && libraryMessage) {
+      libraryMessage.remove();
+    }
     this.switchBtntoAdded(e.target);
   };
-
-  //========== Нормализация перед localeStorage ==========
-
-  // =========== Конец нормализации localeStorage ================
-  // ====================== Vadym ==============================
 }
