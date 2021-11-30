@@ -94,7 +94,7 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  padding: 10px 10px 8px 10px;
+  padding: 7px 8px 5px 8px;
   font-weight: 500;
   font-size: 12px;
   line-height: 1.17;
@@ -106,6 +106,10 @@
   cursor: pointer;
   border-radius: 5px;
   transition: background-color $duration linear;
+}
+
+.cards__btn-icon {
+  fill: $secondary-text-color;
 }
 
 .cards__btn-remove:hover,
@@ -224,22 +228,21 @@
   left: 50%;
   transform: translateX(calc(-50% + (100vw / 2 - 50px)));
   z-index: 10;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
   border: none;
+  border-radius: 50%;
   color: $secondary-text-color;
-  background-color: $main-brand-color;
+  background-color: transparent;
   opacity: 0;
   pointer-events: none;
   transition: opacity 250ms linear;
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
-  box-shadow: 0 4px 4px rgb(0 0 0 / 20%);
-  font-size: 30px;
-  text-align: center;
-  text-decoration: none;
-  -webkit-appearance: none;
+}
+
+.top-scroll__icon {
+  fill: $main-brand-color;
 }
 
 .top-scroll.active {
