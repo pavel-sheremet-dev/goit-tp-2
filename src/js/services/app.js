@@ -657,7 +657,6 @@ export default class Application {
         ...movie,
         currentPage: this.page,
         // vote_average: this.pad(movie.vote_average),
-        inLibrary: true,
       };
     });
   };
@@ -667,6 +666,7 @@ export default class Application {
     obj.img = this.createImage(obj);
     obj.year = this.createYear(obj);
     obj.vote_average = this.pad(obj.vote_average);
+    obj.inLibrary = true;
     if (obj.genres.length > 2) {
       const newGenres = obj.genres.slice(0, 3);
       obj.genres = newGenres;
@@ -705,7 +705,7 @@ export default class Application {
       const dataToUpdate = this.getDataFromLocalStorage(btnKey);
       dataToUpdate.splice(movieStatus.movieIndex, 1);
       localStorage.setItem(btnKey, JSON.stringify(dataToUpdate));
-      return;
+      return dataToUpdate;
     }
 
     this.fetchMovieByID(movieId).then(data => {
@@ -999,13 +999,16 @@ export default class Application {
     const btnKey = e.target.dataset.key;
     const movieStatus = this.checkIsIncludeMovieInLibraryData(movieID, btnKey);
 
-    this.changeLibraryData(movieID, btnKey, movieStatus);
+    const updatedData = this.changeLibraryData(movieID, btnKey, movieStatus);
 
     if (movieStatus.findedMovie) {
       this.switchBtntoDefault(e.target);
       if (this.isMyLibrary) {
         const movieCard = this.getElement(`li[data-id="${movieID}"]`);
         movieCard.remove();
+        if (!updatedData.length) {
+          this.refs.cardsContainer.insertAdjacentHTML('beforebegin', this.makeLibraryMessage());
+        }
       }
       return;
     }
