@@ -19,7 +19,13 @@
         {{year}}<span class='cards__rating'>{{vote_average}}</span>
       </p>
       {{#if inLibrary}}
-        <button type='button' class='cards__btn-remove'>remove movie</button>
+        <button type='button' class='cards__btn-remove'><svg
+            class='cards__btn-icon'
+            width='16'
+            height='16'
+          >
+            <use href='{{sprite}}#icon-bin'></use>
+          </svg></button>
       {{/if}}
     </a>
   </li>

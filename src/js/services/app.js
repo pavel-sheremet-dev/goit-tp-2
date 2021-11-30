@@ -35,7 +35,7 @@ export default class Application {
     this.total_pages = 0;
     this.refs = refs;
     this.CSS = CSS;
-    this.spriteUrl = { url: spriteUrl };
+    this.spriteUrl = { sprite: spriteUrl };
     // this.id = null;
     this.lang = 'en-US';
     this._path = '/trending/movie/week';
@@ -363,20 +363,27 @@ export default class Application {
   // получает фильмы из моей библиотеке (просмотренные и в очереди)
 
   getMyLibraryMovies = key => {
-    const dataFromLocaStorage = this.getDataFromLocalStorage(key);
+    const promise = new Promise(res => {
+      const dataFromLocaStorage = this.getDataFromLocalStorage(key);
 
-    this.getTotalPages(dataFromLocaStorage);
-    const libraryMessage = this.getElement('.my-library__description');
+      this.getTotalPages(dataFromLocaStorage);
+      const libraryMessage = this.getElement('.my-library__description');
 
-    if (!this.total_pages && !libraryMessage) {
-      this.refs.cardsContainer.insertAdjacentHTML('beforebegin', this.makeLibraryMessage());
-      return;
-    }
+      if (!this.total_pages && !libraryMessage) {
+        this.refs.cardsContainer.insertAdjacentHTML('beforebegin', this.makeLibraryMessage());
+        this.refs.topScroll.classList.remove(this.CSS.ACTIVE);
+        return;
+      }
 
-    const onePageMovies = this.getOnePageData(dataFromLocaStorage);
-    const normalizeMovies = this.normalizeIdsMovies(onePageMovies);
-    const moviesCardsMarkup = this.makeMoviesCards(normalizeMovies);
-    this.refs.cardsContainer.insertAdjacentHTML('beforeend', moviesCardsMarkup);
+      this.refs.topScroll.classList.add(this.CSS.ACTIVE);
+
+      const onePageMovies = this.getOnePageData(dataFromLocaStorage);
+      const normalizeMovies = this.normalizeIdsMovies(onePageMovies);
+      const moviesCardsMarkup = this.makeMoviesCards(normalizeMovies);
+      this.refs.cardsContainer.insertAdjacentHTML('beforeend', moviesCardsMarkup);
+      res(true);
+    });
+    return promise;
   };
 
   // получает, следующую страницу с фильмами из моей библиотеке
@@ -463,6 +470,7 @@ export default class Application {
 
     if (!dataToUpdate.length) {
       this.refs.cardsContainer.insertAdjacentHTML('beforebegin', this.makeLibraryMessage());
+      this.refs.topScroll.classList.remove(this.CSS.ACTIVE);
       return;
     }
   };
@@ -637,6 +645,7 @@ export default class Application {
     img: this.createImage(film),
     vote_average: this.pad(film.vote_average),
     currentPage: this.page,
+    ...this.spriteUrl,
   });
 
   // Соединение информации о фильме для страницы home
@@ -667,6 +676,7 @@ export default class Application {
     obj.year = this.createYear(obj);
     obj.vote_average = this.pad(obj.vote_average);
     obj.inLibrary = true;
+    obj.sprite = this.spriteUrl.sprite;
     if (obj.genres.length > 2) {
       const newGenres = obj.genres.slice(0, 3);
       obj.genres = newGenres;
@@ -820,7 +830,7 @@ export default class Application {
       this.accentEl(e.target);
       this.clearAccent(this.refs.homeBtn);
       this.showLibraryBackground();
-      this.refs.topScroll.classList.add(this.CSS.ACTIVE);
+      // this.refs.topScroll.classList.add(this.CSS.ACTIVE);
       this.resetPage();
       this.unObserveLoadMoreAnchor();
 
@@ -830,14 +840,11 @@ export default class Application {
 
           const activeLibraryBtn = this.getActiveLibraryBtn(libraryBtns);
           this.currentLibraryKey = activeLibraryBtn.dataset.key;
-          this.getMyLibraryMovies(this.currentLibraryKey);
-
+          this.getMyLibraryMovies(this.currentLibraryKey).then(this.observeLoadMoreAnchor);
           this.showCardsContainer();
-          this.hideCardsListLoader();
           this.showImages(this.page);
-          this.observeLoadMoreAnchor();
+          this.hideCardsListLoader();
           this.incrementPage();
-
           libraryBtns.addEventListener('click', this.onLibraryBtnsClick);
         },
       );
@@ -881,16 +888,17 @@ export default class Application {
   onLibraryBtnsClick = e => {
     const queueBtn = this.getElement(this.refs.queueBtnSelector);
     const watchedBtn = this.getElement(this.refs.watchedBtnSelector);
-    const libraryMessage = this.getElement('.my-library__description');
-    if (libraryMessage) {
-      libraryMessage.remove();
-    }
 
     if (
       (e.target !== queueBtn && e.target !== watchedBtn) ||
       e.target.classList.contains(this.CSS.ACCENT)
     ) {
       return;
+    }
+
+    const libraryMessage = this.getElement('.my-library__description');
+    if (libraryMessage) {
+      libraryMessage.remove();
     }
 
     this.currentLibraryKey = e.target.dataset.key;
@@ -902,12 +910,10 @@ export default class Application {
     this.unObserveLoadMoreAnchor();
 
     this.clearCardsContainer().then(() => {
-      this.getMyLibraryMovies(e.target.dataset.key);
-
+      this.getMyLibraryMovies(e.target.dataset.key).then(this.observeLoadMoreAnchor);
       this.showCardsContainer();
       this.hideCardsListLoader();
       this.showImages(this.page);
-      this.observeLoadMoreAnchor();
       this.incrementPage();
     });
   };
@@ -921,7 +927,7 @@ export default class Application {
       return;
     }
 
-    if (e.target.classList.contains('cards__btn-remove')) {
+    if (e.target.closest('.cards__btn-remove')) {
       this.removeCardfromList(e.target);
       return;
     }
@@ -1008,12 +1014,14 @@ export default class Application {
         movieCard.remove();
         if (!updatedData.length) {
           this.refs.cardsContainer.insertAdjacentHTML('beforebegin', this.makeLibraryMessage());
+          this.refs.topScroll.classList.remove(this.CSS.ACTIVE);
         }
       }
       return;
     }
     const libraryMessage = this.getElement('.my-library__description');
     if (this.isMyLibrary && libraryMessage) {
+      this.refs.topScroll.classList.add(this.CSS.ACTIVE);
       libraryMessage.remove();
     }
     this.switchBtntoAdded(e.target);
