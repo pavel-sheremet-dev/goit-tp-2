@@ -721,6 +721,7 @@ export default class Application {
     this.fetchMovieByID(movieId).then(data => {
       const normalizedResults = this.normalizedDataToLocaleStorage(data);
       const dataToUpdate = [...this.getDataFromLocalStorage(btnKey), normalizedResults];
+      localStorage.setItem(btnKey, JSON.stringify(dataToUpdate));
 
       const activeLibraryPageKey = document.querySelector('.my-library__btn.accent').dataset.key;
 
@@ -731,10 +732,6 @@ export default class Application {
         const cardItem = cardImage.closest('li');
         this.showImage(cardImage, cardItem);
       }
-
-      localStorage.setItem(btnKey, JSON.stringify(dataToUpdate));
-
-      return normalizedResults;
     });
   };
 
