@@ -401,7 +401,6 @@ export default class Application {
   renderMovieDetails = data => {
     const normalizeData = this.getNormalizeOneMovie(data);
     const movieMarkup = this.makeMovieDetails(normalizeData);
-    console.log(movieMarkup);
     this.refs.cardModalContent.innerHTML = movieMarkup;
     this.refs.cardModal.classList.remove(this.CSS.IS_HIDDEN);
     const modalImage = this.refs.cardModalContent.querySelector('.movie-card__image');
