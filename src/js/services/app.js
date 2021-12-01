@@ -399,10 +399,9 @@ export default class Application {
   // Рендерит и открывает модальное окно с деталицаей фильма
 
   renderMovieDetails = data => {
-    const preNormalize = this.getNormalizeOneMovie(data);
-    const normalizeData = { ...preNormalize, ...this.spriteUrl };
-
+    const normalizeData = this.getNormalizeOneMovie(data);
     const movieMarkup = this.makeMovieDetails(normalizeData);
+    console.log(movieMarkup);
     this.refs.cardModalContent.innerHTML = movieMarkup;
     this.refs.cardModal.classList.remove(this.CSS.IS_HIDDEN);
     const modalImage = this.refs.cardModalContent.querySelector('.movie-card__image');
