@@ -722,7 +722,9 @@ export default class Application {
       const normalizedResults = this.normalizedDataToLocaleStorage(data);
       const dataToUpdate = [...this.getDataFromLocalStorage(btnKey), normalizedResults];
 
-      if (this.isMyLibrary) {
+      const activeLibraryPageKey = document.querySelector('.my-library__btn.accent').dataset.key;
+
+      if (this.isMyLibrary && btnKey === activeLibraryPageKey) {
         const cardMarkup = this.makeMoviesCards([normalizedResults]);
         this.refs.cardsContainer.insertAdjacentHTML('beforeend', cardMarkup);
         const cardImage = this.refs.cardsContainer.querySelector('.cards__img.is-hidden');
@@ -731,6 +733,8 @@ export default class Application {
       }
 
       localStorage.setItem(btnKey, JSON.stringify(dataToUpdate));
+
+      return normalizedResults;
     });
   };
 
@@ -1009,7 +1013,10 @@ export default class Application {
 
     if (movieStatus.findedMovie) {
       this.switchBtntoDefault(e.target);
-      if (this.isMyLibrary) {
+
+      const activeLibraryPageKey = document.querySelector('.my-library__btn.accent').dataset.key;
+
+      if (this.isMyLibrary && activeLibraryPageKey === btnKey) {
         const movieCard = this.getElement(`li[data-id="${movieID}"]`);
         movieCard.remove();
         if (!updatedData.length) {
@@ -1019,6 +1026,7 @@ export default class Application {
       }
       return;
     }
+
     const libraryMessage = this.getElement('.my-library__description');
     if (this.isMyLibrary && libraryMessage) {
       this.refs.topScroll.classList.add(this.CSS.ACTIVE);
