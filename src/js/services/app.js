@@ -49,6 +49,7 @@ export default class Application {
     this.windowSpinner = windowSpinner;
     this.anchorSpinner = anchorSpinner;
     this.isMyLibrary = false;
+    this.currentMovieData = [];
   }
 
   loadListeners = () => {
@@ -716,21 +717,12 @@ export default class Application {
       return dataToUpdate;
     }
 
-    this.fetchMovieByID(movieId).then(data => {
-      const normalizedResults = this.normalizedDataToLocaleStorage(data);
-      const dataToUpdate = [...this.getDataFromLocalStorage(btnKey), normalizedResults];
-      localStorage.setItem(btnKey, JSON.stringify(dataToUpdate));
+    const data = this.currentMovieData;
 
-      const activeLibraryPageKey = document.querySelector('.my-library__btn.accent').dataset.key;
-
-      if (this.isMyLibrary && btnKey === activeLibraryPageKey) {
-        const cardMarkup = this.makeMoviesCards([normalizedResults]);
-        this.refs.cardsContainer.insertAdjacentHTML('beforeend', cardMarkup);
-        const cardImage = this.refs.cardsContainer.querySelector('.cards__img.is-hidden');
-        const cardItem = cardImage.closest('li');
-        this.showImage(cardImage, cardItem);
-      }
-    });
+    const normalizedResults = this.normalizedDataToLocaleStorage(data);
+    const dataToUpdate = [...this.getDataFromLocalStorage(btnKey), normalizedResults];
+    localStorage.setItem(btnKey, JSON.stringify(dataToUpdate));
+    return normalizedResults;
   };
 
   /* ---------------- LOCAL STORAGE END -------------------- */
@@ -937,6 +929,7 @@ export default class Application {
 
     this.fetchMovieByID(currentId)
       .then(data => {
+        this.currentMovieData = data;
         this.renderMovieDetails(data);
 
         this.hideWindowLoader();
@@ -957,6 +950,7 @@ export default class Application {
   onEscapeClick = event => {
     if (event.code === 'Escape') {
       this.closeModal();
+      this.currentMovieData = [];
     }
   };
 
@@ -976,6 +970,7 @@ export default class Application {
     setTimeout(() => {
       this.refs.cardModalContent.innerHTML = '';
     }, this.CSS.DELAY);
+    this.currentMovieData = [];
   };
 
   // Обработчик нажатия на ссылку открытия модального окна разработчиков
@@ -1006,10 +1001,10 @@ export default class Application {
 
     const updatedData = this.changeLibraryData(movieID, btnKey, movieStatus);
 
+    const activeLibraryPageKey = document.querySelector('.my-library__btn.accent').dataset.key;
+
     if (movieStatus.findedMovie) {
       this.switchBtntoDefault(e.target);
-
-      const activeLibraryPageKey = document.querySelector('.my-library__btn.accent').dataset.key;
 
       if (this.isMyLibrary && activeLibraryPageKey === btnKey) {
         const movieCard = this.getElement(`li[data-id="${movieID}"]`);
@@ -1022,11 +1017,19 @@ export default class Application {
       return;
     }
 
+    this.switchBtntoAdded(e.target);
+
     const libraryMessage = this.getElement('.my-library__description');
     if (this.isMyLibrary && libraryMessage) {
       this.refs.topScroll.classList.add(this.CSS.ACTIVE);
       libraryMessage.remove();
     }
-    this.switchBtntoAdded(e.target);
+    if (this.isMyLibrary && btnKey === activeLibraryPageKey) {
+      const cardMarkup = this.makeMoviesCards([updatedData]);
+      this.refs.cardsContainer.insertAdjacentHTML('beforeend', cardMarkup);
+      const cardImage = this.refs.cardsContainer.querySelector('.cards__img.is-hidden');
+      const cardItem = cardImage.closest('li');
+      this.showImage(cardImage, cardItem);
+    }
   };
 }
