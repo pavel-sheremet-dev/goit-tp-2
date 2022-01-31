@@ -36,7 +36,6 @@ export default class Application {
     this.refs = refs;
     this.CSS = CSS;
     this.spriteUrl = { sprite: spriteUrl };
-    // this.id = null;
     this.lang = 'en-US';
     this._path = '/trending/movie/week';
     this._urlParams = '';
@@ -67,6 +66,7 @@ export default class Application {
     this.loadListeners();
     this.getGenres();
     this.getNotFoundPicture(this._not_found_img);
+    this.refs.topScroll.classList.add(this.CSS.ACTIVE);
   };
 
   /* ------------ API МЕТОДЫ ------------ */
@@ -300,7 +300,6 @@ export default class Application {
 
     this.resetPage();
     this.unObserveLoadMoreAnchor();
-    this.refs.topScroll.classList.add(this.CSS.ACTIVE);
 
     this.path = this.getWeekTrendingPath();
     this.getMovies(this.path);
@@ -372,11 +371,8 @@ export default class Application {
 
       if (!this.total_pages && !libraryMessage) {
         this.refs.cardsContainer.insertAdjacentHTML('beforebegin', this.makeLibraryMessage());
-        this.refs.topScroll.classList.remove(this.CSS.ACTIVE);
         return;
       }
-
-      this.refs.topScroll.classList.add(this.CSS.ACTIVE);
 
       const onePageMovies = this.getOnePageData(dataFromLocaStorage);
       const normalizeMovies = this.normalizeIdsMovies(onePageMovies);
@@ -469,7 +465,6 @@ export default class Application {
 
     if (!dataToUpdate.length) {
       this.refs.cardsContainer.insertAdjacentHTML('beforebegin', this.makeLibraryMessage());
-      this.refs.topScroll.classList.remove(this.CSS.ACTIVE);
       return;
     }
   };
@@ -736,7 +731,6 @@ export default class Application {
     this.path = this.getWeekTrendingPath();
 
     this.getMovies(this.path);
-    this.refs.topScroll.classList.add(this.CSS.ACTIVE);
   };
 
   /* ----------- OBSERVER INFINITY SCROLL ------------ */
@@ -821,7 +815,7 @@ export default class Application {
       this.accentEl(e.target);
       this.clearAccent(this.refs.homeBtn);
       this.showLibraryBackground();
-      // this.refs.topScroll.classList.add(this.CSS.ACTIVE);
+
       this.resetPage();
       this.unObserveLoadMoreAnchor();
 
@@ -1011,7 +1005,6 @@ export default class Application {
         movieCard.remove();
         if (!updatedData.length) {
           this.refs.cardsContainer.insertAdjacentHTML('beforebegin', this.makeLibraryMessage());
-          this.refs.topScroll.classList.remove(this.CSS.ACTIVE);
         }
       }
       return;
@@ -1021,7 +1014,6 @@ export default class Application {
 
     const libraryMessage = this.getElement('.my-library__description');
     if (this.isMyLibrary && libraryMessage) {
-      this.refs.topScroll.classList.add(this.CSS.ACTIVE);
       libraryMessage.remove();
     }
     if (this.isMyLibrary && btnKey === activeLibraryPageKey) {
