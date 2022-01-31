@@ -1,0 +1,78 @@
+<div class='movie-card'>
+  <button type='button' class='movie-card__close-btn' data-action='close-card-modal'>
+    <svg class='movie-card__close-icon' width='30' height='30'>
+      <use href='{{sprite}}#icon-close'></use>
+    </svg>
+  </button>
+  <div class='movie-card__box'>
+
+    <div class='movie-card__img-wrapper active'>
+      <div class='card__loader'></div>
+      <img class='movie-card__image is-hidden' src='{{img}}' alt='Movie poster {{title}}' />
+    </div>
+
+    <div class='movie-card__side-b'>
+      <h3 class='movie-card__title'>{{title}} </h3>
+      <div class='stats-container'>
+        <ul class='stats-list list'>
+          <li class='stats-list__item'>
+            Vote/Votes
+          </li>
+          <li class='stats-list__item'>
+            Popularity
+          </li>
+          <li class='stats-list__item'>
+            Original Title
+          </li>
+          <li class='stats-list__item'>
+            Genre
+          </li>
+        </ul>
+        <ul class='stats-list-api list'>
+          <li class='stats-list__item'><span
+              class='stats-list__item--accent'
+            >{{vote_average}}</span>
+            <span class='stats-list__item--slash'>/</span>
+            <span class='stats-list__item--light'>{{vote_count}}</span>
+
+          </li>
+          <li class='stats-list__item'>
+            {{popularity}}
+          </li>
+          <li class='stats-list__item'>
+            {{title}}
+          </li>
+          <li class='stats-list__item stats-list__item-gen'>
+            {{#each genres}}
+              {{this}}{{#unless @last}},{{/unless}}
+            {{/each}}
+          </li>
+        </ul>
+      </div>
+
+      <p class='movie-card__description-title'>About</p>
+      <p class='movie-description'>{{overview}}</p>
+      <ul class='movie-card__btn-list list' data-id='{{id}}'>
+        <li class='movie-card__btn-item'>
+          <button
+            type='button'
+            class='movie-card__btn'
+            data-action='add-to-library'
+            data-key='watched'
+          >
+            ADD TO WATCHED
+          </button>
+        </li>
+        <li class='movie-card__btn-item'>
+          <button
+            type='button'
+            class='movie-card__btn'
+            data-action='add-to-library'
+            data-key='queue'
+          >ADD TO QUEUE</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+</div>

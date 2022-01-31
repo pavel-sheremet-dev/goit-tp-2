@@ -1,24 +1,136 @@
+.cards__container {
+  position: relative;
+  padding-top: 20px;
+  padding-bottom: 100px;
+}
+
 .cards__list {
   display: block;
+  opacity: 1;
+  transition: opacity $duration linear;
+}
+
+.cards__list.is-hidden {
+  opacity: 0;
 }
 
 .cards__item {
+  position: relative;
   width: 100%;
-  outline: 1px solid green;
+  // outline: 1px solid green;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cards__item:not(:last-child) {
+  margin-bottom: 20px;
+}
+
+.cards__link {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.cards__img-container {
+  background-color: rgba(0, 0, 0, 0.1);
+  background-image: url(../images/body-bg.svg);
+  width: 100%;
+  height: calc((100vw - 40px) * 1.43);
+  margin-bottom: 10px;
+  border-radius: 5px;
 }
 
 .cards__img {
+  display: block;
   width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 1;
+  transition: opacity $duration linear;
+  border-radius: 5px;
+}
+
+.cards__img.is-hidden {
+  opacity: 0;
+}
+
+.cards__title {
+  text-transform: uppercase;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.33;
+}
+
+.cards__genres {
+  font-style: normal;
+  margin-top: auto;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.33;
+  color: $main-brand-color;
+}
+
+.cards__rating {
+  padding: 1px 8px;
+  margin-left: 10px;
+  border-radius: 5px;
+  background-color: $main-brand-color;
+  color: $secondary-text-color;
+
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.17;
+}
+
+.cards__btn-remove {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 7px 8px 5px 8px;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.17;
+  box-shadow: 3px 3px 4px -1px rgba(0, 0, 0, 0.3);
+  text-transform: uppercase;
+  color: $secondary-text-color;
+  background-color: $main-brand-color;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color $duration linear;
+}
+
+.cards__btn-icon {
+  fill: $secondary-text-color;
+}
+
+.cards__btn-remove:hover,
+.cards__btn-remove:focus {
+  background-color: $accent-brand-color;
 }
 
 @media screen and (min-width: 480px) {
   .cards__item {
-    width: 440px;
+    width: 350px;
+  }
+
+  .cards__img-container {
+    width: 350px;
+    height: calc(350px * 1.43);
   }
 }
 
 // 768-1199 adaptive tablet container
 @media screen and (min-width: 768px) {
+  .cards__container {
+    padding-top: 60px;
+    padding-bottom: 80px;
+  }
+
   .cards__list {
     display: grid;
     gap: 30px;
@@ -27,6 +139,15 @@
 
   .cards__item {
     width: 295px;
+  }
+
+  .cards__item:not(:last-child) {
+    margin-bottom: 0;
+  }
+
+  .cards__img-container {
+    width: 100%;
+    height: calc(295px * 1.49);
   }
 }
 
@@ -39,43 +160,108 @@
   .cards__item {
     width: 273px;
   }
+
+  .cards__img-container {
+    width: 100%;
+    height: calc(273px * 1.61);
+  }
 }
+
+// .cards__loadmore.is-hidden {
+//   display: none;
+// }
+
+// .cards__loadmore {
+//   display: block;
+// }
 
 // Потом добавим ожидание загрузки, используя спиннер
 
-// для использования этого спиннера нужно в шаблон добавить следующую разметку
-// <div class='cards__loader'></div>
-// первым ребенком
-// а на родителя повесить position: relative;
-// через js добавляется/удаляется класс active на этот елемент.
+.card__loader {
+  z-index: -1;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transform-origin: top left;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: $main-brand-color;
+  opacity: 0;
+}
 
-// .cards__loader {
-//   z-index: -1;
-//   position: absolute;
-//   top: 50%;
-//   left: 50%;
-//   transform: translate(-50%, -50%);
-//   transform-origin: top left;
-//   width: 80px;
-//   height: 80px;
-//   border-radius: 50%;
-//   border: 2px solid transparent;
-//   border-top-color: $secondary-text-color;
-//   opacity: 0;
-//   transition: opacity 250ms linear;
-// }
+.cards__item.active .card__loader,
+.movie-card__img-wrapper.active .card__loader {
+  z-index: 1;
+  animation: card-loader 1s ease infinite;
+  opacity: 0.7;
+}
 
-// .card__loader.active {
-//   z-index: 1;
-//   animation: card-loader 1s ease infinite;
-//   opacity: 1;
-// }
+.cards__item.active .not-found {
+  opacity: 0;
+  transition: opacity $duration linear;
+}
 
-// @keyframes card-loader {
-//   from {
-//     transform: rotate(0turn) translate(-50%, -50%);
-//   }
-//   to {
-//     transform: rotate(1turn) translate(-50%, -50%);
-//   }
-// }
+.cards__item .not-found {
+  opacity: 1;
+  transition: opacity $duration linear;
+}
+
+@keyframes card-loader {
+  from {
+    transform: rotate(0turn) translate(-50%, -50%);
+  }
+  to {
+    transform: rotate(1turn) translate(-50%, -50%);
+  }
+}
+
+.top-scroll {
+  position: fixed;
+  bottom: 55px;
+  left: 50%;
+  transform: translateX(calc(-50% + (100vw / 2 - 50px)));
+  z-index: 10;
+  border: none;
+  border-radius: 50%;
+  color: $secondary-text-color;
+  background-color: transparent;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms linear;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.top-scroll__icon {
+  fill: $main-brand-color;
+}
+
+.top-scroll.active {
+  opacity: 1;
+  pointer-events: visible;
+}
+
+@media screen and (min-width: 480px) {
+  .top-scroll {
+    transform: translateX(calc(-50% + (480px / 2 - 35px)));
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .top-scroll {
+    bottom: 65px;
+    transform: translateX(calc(-50% + (768px / 2 - 40px)));
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .top-scroll {
+    bottom: 65px;
+    transform: translateX(calc(-50% + (1024px / 2 - 40px)));
+  }
+}

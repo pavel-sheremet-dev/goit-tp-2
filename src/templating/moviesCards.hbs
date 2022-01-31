@@ -1,2 +1,32 @@
-{{! Начало пути к Img ниже, остаток пути приходит в результатах запроса на API }}
-{{! https://image.tmdb.org/t/p/w500 }}
+{{#each this}}
+  <li class='cards__item active' data-id='{{id}}'>
+    <a href='#' class='cards__link link'>
+      <div class='card__loader'></div>
+      <div class='cards__img-container'>
+        <img
+          class='cards__img is-hidden'
+          data-page='{{currentPage}}'
+          src='{{img}}'
+          alt='movie poster {{title}}'
+          loading='lazy'
+        />
+      </div>
+
+      <h3 class='cards__title'>{{title}}</h3>
+      <p class='cards__genres'>{{#each genres}}{{this.name}}{{#unless @last}},{{/unless}}
+        {{/each}}
+        |
+        {{year}}<span class='cards__rating'>{{vote_average}}</span>
+      </p>
+      {{#if inLibrary}}
+        <button type='button' class='cards__btn-remove'><svg
+            class='cards__btn-icon'
+            width='16'
+            height='16'
+          >
+            <use href='{{sprite}}#icon-bin'></use>
+          </svg></button>
+      {{/if}}
+    </a>
+  </li>
+{{/each}}

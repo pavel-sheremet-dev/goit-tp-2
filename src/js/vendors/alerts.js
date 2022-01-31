@@ -21,7 +21,7 @@ const showAlert = (title, message) => {
     text: message,
     delay: 2000,
     sticker: false,
-    width: '280px',
+    width: '350px',
     stack: stack,
   });
 };

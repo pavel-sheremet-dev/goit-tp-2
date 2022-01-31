@@ -3,19 +3,19 @@
 import { Spinner } from 'spin.js';
 
 const loadSpinner = new Spinner({
-  lines: 12,
-  length: 7,
-  width: 1,
-  radius: 10,
+  lines: 11,
+  length: 0,
+  width: 5,
+  radius: 12,
   scale: 2.0,
   corners: 1,
-  color: '#ded7f0',
+  color: '#ff001b',
   fadeColor: 'transparent',
   animation: 'spinner-line-shrink',
   rotate: 0,
   direction: 1,
   speed: 1,
-  zIndex: 2e9,
+  zIndex: 5,
   className: 'spinner',
   top: '50%',
   left: '50%',
@@ -23,4 +23,46 @@ const loadSpinner = new Spinner({
   position: 'absolute',
 });
 
-export { loadSpinner };
+const windowSpinner = new Spinner({
+  lines: 11,
+  length: 0,
+  width: 5,
+  radius: 12,
+  scale: 2.0,
+  corners: 1,
+  color: '#ffffff',
+  fadeColor: 'transparent',
+  animation: 'spinner-line-shrink',
+  rotate: 0,
+  direction: 1,
+  speed: 1,
+  zIndex: 5,
+  className: 'spinner',
+  top: '50%',
+  left: '50%',
+  shadow: '0 0 1px transparent',
+  position: 'absolute',
+});
+
+const anchorSpinner = new Spinner({
+  lines: 10,
+  length: 0,
+  width: 3,
+  radius: 7,
+  scale: 2.0,
+  corners: 1,
+  color: '#ff001b',
+  fadeColor: 'transparent',
+  animation: 'spinner-line-shrink',
+  rotate: 0,
+  direction: 1,
+  speed: 1,
+  zIndex: 5,
+  className: 'spinner',
+  top: '50%',
+  left: '50%',
+  shadow: '0 0 1px transparent',
+  position: 'absolute',
+});
+
+export { loadSpinner, windowSpinner, anchorSpinner };

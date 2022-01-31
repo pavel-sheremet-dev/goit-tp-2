@@ -1,0 +1,89 @@
+.footer {
+  position: fixed;
+  z-index: 7;
+  bottom: 0;
+  background-color: #f7f7f7;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.footer__container {
+  width: 100vw;
+  text-align: center;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.footer__small,
+.footer__devs-link {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: calc(16.5 / 14);
+  color: #545454;
+}
+
+.footer__small--hr {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.footer__heart {
+  margin: 0 10px;
+  animation-name: heart-beat;
+  animation-duration: 1s;
+  animation-iteration-count: 999;
+  animation-direction: alternate-reverse;
+  fill: $main-brand-color;
+}
+
+// @keyframes heart-beat {
+//   0% {
+//     transform: scale(1);
+//   }
+//   30% {
+//     fill: pink;
+//   }
+
+//   100% {
+//     transform: scale(1.3);
+//   }
+// }
+
+@keyframes heart-beat {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.2);
+  }
+}
+
+.footer__devs-link {
+  display: inline-block;
+}
+
+@media screen and (min-width: 480px) {
+  .footer__container {
+    width: 480px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .footer__container {
+    width: 768px;
+  }
+
+  .footer__small--hr {
+    display: inline-block;
+    margin-bottom: 0;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .footer__container {
+    width: 1024px;
+  }
+}

@@ -7,5 +7,7 @@ export default {
   ACCENT: 'accent',
   LOCK: 'is-lock',
   NOT_FOUND: 'not-found',
-  DELAY: 250,
+  DELAY: 200,
+  IMG: 'cards__img',
+  NOT_FOUND: 'not-found',
 };

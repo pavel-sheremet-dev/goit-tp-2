@@ -1,0 +1,148 @@
+.js-devs-modal {
+  position: fixed;
+  opacity: 1;
+  z-index: 999;
+  pointer-events: visible;
+  padding: 20px;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow-y: scroll;
+  transition: opacity $duration linear;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: $loader-backdrop;
+}
+
+.js-devs-modal.is-hidden {
+  opacity: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.modal_overflow {
+  width: 100%;
+  background-color: white;
+  background-image: url(../images/body-bg.svg);
+}
+.modal__close-btn {
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  stroke: #00000024;
+  border: 2px solid #00000024;
+  border-radius: 50%;
+  padding: 0;
+  margin: 0;
+  transition: transform $duration linear, stroke $duration linear, border-color $duration linear;
+
+  &:hover {
+    stroke: $main-brand-color;
+    border-color: $main-brand-color;
+    transform: scale(1.1);
+  }
+}
+.devs__content {
+  padding: 60px 20px;
+}
+.devs-modal__button {
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
+  border: none;
+  position: absolute;
+  right: 30px;
+  top: 30px;
+}
+.team-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.team-list li {
+  list-style-type: none;
+  display: flex;
+  text-align: center;
+  width: 230px;
+  text-decoration: none;
+  margin: 15px 0;
+}
+.team-list img {
+  border-radius: 50%;
+  border: 1px solid #00000049;
+  transition: transform 250ms linear, stroke 250ms linear;
+
+  &:hover {
+    border-color: rgb(255, 107, 8);
+  }
+}
+.team-person {
+  font-style: normal;
+  margin-top: auto;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.33;
+  color: #000000c4;
+  padding-top: 5px;
+  text-decoration: none;
+  transition: transform 250ms linear, stroke 250ms linear;
+  &:hover {
+    color: rgb(255, 107, 8);
+    transform: scale(1.05);
+  }
+}
+
+.team-person span {
+  display: block;
+  margin: 15px 0;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.33;
+}
+
+.modal-title {
+  text-align: center;
+  margin-bottom: 0.3em;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+@media screen and (min-width: 480px) {
+  .team-person:hover {
+    color: $main-brand-color;
+    transform: scale(1.15);
+  }
+}
+
+.team-list {
+  justify-content: center;
+}
+.modal-title {
+  font-size: 18px;
+}
+.team-list li {
+  justify-content: center;
+}
+.team-list img {
+  max-width: 100%;
+}
+
+@media screen and (min-width: 768px) {
+  .devs__content {
+    padding: 40px 20px;
+  }
+
+  .team-list {
+    justify-content: space-between;
+  }
+  .modal-title {
+    font-size: 23px;
+  }
+  .team-list li {
+    justify-content: space-between;
+  }
+}
